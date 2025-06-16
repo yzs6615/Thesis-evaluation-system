@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文评定打分</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>论文评定打分</h1>
+    <form id="paperForm">
+        <label for="paperTitle">论文标题:</label>
+        <input type="text" id="paperTitle" required>
+        <label for="score">打分 (0 - 100):</label>
+        <input type="number" id="score" min="0" max="100" required>
+        <input type="submit" value="提交打分">
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('paperForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const paperTitle = document.getElementById('paperTitle').value;
+            const score = document.getElementById('score').value;
+
+            fetch('/submit_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: paperTitle,
+                    score: score
+                })
+            })
+              .then(response => response.json())
+              .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = `<p>${data.message}</p>`;
+                });
+        });
+    </script>
+</body>
+
+</html>

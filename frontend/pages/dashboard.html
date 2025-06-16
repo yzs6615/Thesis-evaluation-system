@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>论文评定系统 - 仪表盘</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#FF7D00',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            info: '#1890FF',
+            light: '#F2F3F5',
+            dark: '#1D2129'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .nav-shadow {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .text-balance {
+        text-wrap: balance;
+      }
+    }
+  </style>
+  
+  <!-- 全局样式 -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .animate-slideUp {
+      animation: slideUp 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-dark">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white nav-shadow sticky top-0 z-30">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- 左侧Logo和标题 -->
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-4 text-gray-500 hover:text-primary transition-colors md:hidden">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+          <a href="#" class="flex items-center">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+              <i class="fa fa-file-text-o"></i>
+            </div>
+            <span class="ml-2 font-bold text-xl text-primary">论文评定系统</span>
+          </a>
+        </div>
+        
+        <!-- 右侧用户信息和通知 -->
+        <div class="flex items-center space-x-4">
+          <button id="notification-btn" class="relative p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-full transition-colors">
+            <i class="fa fa-bell text-xl"></i>
+            <span id="notification-badge" class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
+          </button>
+          
+          <div class="relative group">
+            <button id="user-menu-btn" class="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-full transition-colors">
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-user"></i>
+              </div>
+              <span id="user-name" class="hidden md:inline font-medium">张教授</span>
+              <i class="fa fa-caret-down text-gray-500"></i>
+            </button>
+            
+            <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden group-hover:block animate-fadeIn">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fa fa-user-circle-o mr-2"></i>个人资料
+              </a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fa fa-cog mr-2"></i>设置
+              </a>
+              <div class="border-t border-gray-200 my-1"></div>
+              <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <i class="fa fa-sign-out mr-2"></i>退出登录
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="flex flex-1">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg transform -translate-x-full md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out">
+      <div class="flex flex-col h-full">
+        <div class="p-4 border-b">
+          <h2 class="text-lg font-semibold text-gray-800">控制面板</h2>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+          <a href="#dashboard" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <i class="fa fa-dashboard w-5 text-center mr-3"></i>
+            <span>仪表盘</span>
+          </a>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-file-text w-5 text-center mr-3"></i>
+                <span>论文管理</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#papers-submitted" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>已提交论文</span>
+              </a>
+              <a href="#papers-reviewing" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>评审中论文</span>
+              </a>
+              <a href="#papers-reviewed" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>已评审论文</span>
+              </a>
+              <a href="#submit-paper" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>提交新论文</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-users w-5 text-center mr-3"></i>
+                <span>专家管理</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#experts-list" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>专家列表</span>
+              </a>
+              <a href="#experts-assignments" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>评审任务</span>
+              </a>
+              <a href="#add-expert" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>添加专家</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-bar-chart w-5 text-center mr-3"></i>
+                <span>统计分析</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#statistics-overall" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>总体统计</span>
+              </a>
+              <a href="#statistics-experts" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>专家评审统计</span>
+              </a>
+              <a href="#statistics-papers" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>论文质量统计</span>
+              </a>
+            </div>
+          </div>
+          
+          <a href="#settings" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <i class="fa fa-cog w-5 text-center mr-3"></i>
+            <span>系统设置</span>
+          </a>
+        </nav>
+        
+        <div class="p-4 border-t">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="font-medium text-gray-800 mb-2">需要帮助?</h3>
+            <p class="text-sm text-gray-600 mb-3">如有任何问题，请联系系统管理员</p>
+            <a href="#" class="inline-flex items-center text-sm text-primary hover:text-primary/80">
+              <i class="fa fa-envelope-o mr-1"></i> 发送邮件
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- 主内容区 -->
+    <main class="flex-1 p-4 md:p-6 bg-gray-50">
+      <!-- 仪表盘页面 -->
+      <div id="dashboard-page" class="animate-fadeIn">
+        <div class="mb-6">
+          <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">仪表盘</h1>
+          <p class="text-gray-600">欢迎回来，张教授！这是您的系统概览。</p>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">待评审论文</p>
+                <h3 class="text-3xl font-bold mt-1">8</h3>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                  <i class="fa fa-arrow-up mr-1"></i> 比上周增加 2 篇
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-file-text-o text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">已完成评审</p>
+                <h3 class="text-3xl font-bold mt-1">24</h3>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                  <i class="fa fa-arrow-up mr-1"></i> 比上周增加 5 篇
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center text-success">
+                <i class="fa fa-check-circle-o text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">专家总数</p>
+                <h3 class="text-3xl font-bold mt-1">42</h3>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                  <i class="fa fa-arrow-up mr-1"></i> 比上月增加 3 位
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center text-info">
+                <i class="fa fa-users text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">平均评分</p>
+                <h3 class="text-3xl font-bold mt-1">86.5</h3>
+                <p class="text-red-500 text-sm mt-2 flex items-center">
+                  <i class="fa fa-arrow-down mr-1"></i> 比上月降低 1.2 分
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center text-warning">
+                <i class="fa fa-star text-xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 图表和数据 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <!-- 评审进度图表 -->
+          <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">评审进度</h2>
+              <div class="flex space-x-2">
+                <button class="px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">本月</button>
+                <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">上月</button>
+                <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">全年</button>
+              </div>
+            </div>
+            <div class="h-80">
+              <!-- 这里会用Chart.js渲染图表 -->
+              <canvas id="review-progress-chart"></canvas>
+            </div>
+          </div>
+          
+          <!-- 专家分配情况 -->
+          <div class="bg-white rounded-xl p-6 card-shadow">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">专家分配情况</h2>
+              <a href="#experts-list" class="text-sm text-primary hover:text-primary/80 transition-colors">查看全部</a>
+            </div>
+            <div class="space-y-6">
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">李教授</span>
+                  <span class="text-sm font-medium text-gray-700">8/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 80%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">王博士</span>
+                  <span class="text-sm font-medium text-gray-700">5/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 50%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">赵教授</span>
+                  <span class="text-sm font-medium text-gray-700">10/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 100%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">陈研究员</span>
+                  <span class="text-sm font-medium text-gray-700">7/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 70%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">刘教授</span>
+                  <span class="text-sm font-medium text-gray-700">3/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 30%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 待处理任务和最近活动 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 待处理任务 -->
+          <div class="bg-white rounded-xl p-6 card-shadow">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">待处理任务</h2>
+              <a href="#papers-reviewing" class="text-sm text-primary hover:text-primary/80 transition-colors">查看全部</a>
+            </div>
+            <div class="space-y-4">
+              <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex justify-between mb-2">
+                  <h3 class="font-medium text-gray-800">人工智能在医疗诊断中的应用研究</h3>
+                  <span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">紧急</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">提交人: 王博士</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-500">截止日期: 3天后</span>
+                  <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
+                </div>
+              </div>
+              
+              <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex justify-between mb-2">
+                  <h3 class="font-medium text-gray-800">大数据分析在教育评估中的应用</h3>
+                  <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">常规</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">提交人: 张教授</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-500">截止日期: 7天后</span>
+                  <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
+                </div>
+              </div>
+              
+              <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex justify-between mb-2">
+                  <h3 class="font-medium text-gray-800">区块链技术在金融领域的创新应用</h3>
+                  <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">常规</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">提交人: 李博士</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-500">截止日期: 5天后</span>
+                  <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 最近活动 -->
+          <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">最近活动</h2>
+              <a href="#" class="text-sm text-primary hover:text-primary/80 transition-colors">查看全部</a>
+            </div>
+            <div class="space-y-4">
+              <div class="flex">
+                <div class="flex-shrink-0 mr-4">
+                  <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fa fa-check"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-gray-800">您完成了论文 "机器学习算法优化研究" 的评审</p>
+                  <p class="text-xs text-gray-500 mt-1">2小时前</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 mr-4">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <i class="fa fa-plus"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-gray-800">新论文 "量子计算在密码学中的应用" 已分配给您评审</p>
+                  <p class="text-xs text-gray-500 mt-1">昨天</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 mr-4">
+                  <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <i class="fa fa-clock-o"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-gray-800">论文 "深度学习模型评估方法" 的评审即将到期</p>
+                  <p class="text-xs text-gray-500 mt-1">2天前</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 mr-4">
+                  <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fa fa-check"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-gray-800">您完成了论文 "数据可视化技术研究" 的评审</p>
+                  <p class="text-xs text-gray-500 mt-1">3天前</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 mr-4">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <i class="fa fa-plus"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-gray-800">新论文 "智能推荐系统研究" 已分配给您评审</p>
+                  <p class="text-xs text-gray-500 mt-1">4天前</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

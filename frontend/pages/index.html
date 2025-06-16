@@ -90,7 +90,7 @@
           <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-primary mb-2">
             <i class="fa fa-file-text-o mr-2"></i>论文评定系统
           </h1>
-          <p class="text-gray-500">专业的学术论文评审平台</p>
+          <p class="text-gray-500">学术论文评审平台</p>
         </div>
         
         <form id="login-form" class="space-y-5">
@@ -154,7 +154,7 @@
       </div>
       
       <p class="mt-6 text-center text-gray-500 text-sm">
-        <i class="fa fa-copyright mr-1"></i> 2023 论文评定系统 | 版权所有
+        <i class="fa fa-copyright mr-1"></i> 2025 论文评定系统 
       </p>
     </div>
   </div>
@@ -297,7 +297,7 @@
                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   <i class="fa fa-user"></i>
                 </div>
-                <span id="user-name" class="hidden md:inline font-medium">张教授</span>
+                <span id="user-name" class="hidden md:inline font-medium">宇之笙</span>
                 <i class="fa fa-caret-down text-gray-500"></i>
               </button>
               
@@ -328,11 +328,14 @@
           </div>
           
           <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-            <a href="#dashboard" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <a href="dashboard.html" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
               <i class="fa fa-dashboard w-5 text-center mr-3"></i>
               <span>仪表盘</span>
             </a>
-            
+            <a href="point.html" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <i class="fa fa-dashboard w-5 text-center mr-3"></i>
+              <span>去评定论文</span>
+            </a>
             <div class="sidebar-group">
               <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 <div class="flex items-center">
@@ -342,16 +345,16 @@
                 <i class="fa fa-caret-down transition-transform"></i>
               </button>
               <div class="sidebar-group-content pl-12 space-y-1 hidden">
-                <a href="#papers-submitted" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="papers-submitted.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>已提交论文</span>
                 </a>
-                <a href="#papers-reviewing" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="papers-reviewing.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>评审中论文</span>
                 </a>
-                <a href="#papers-reviewed" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="#papers-reviewed.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>已评审论文</span>
                 </a>
-                <a href="#submit-paper" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="#submit-paper.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>提交新论文</span>
                 </a>
               </div>
@@ -366,13 +369,13 @@
                 <i class="fa fa-caret-down transition-transform"></i>
               </button>
               <div class="sidebar-group-content pl-12 space-y-1 hidden">
-                <a href="#experts-list" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="experts-list.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>专家列表</span>
                 </a>
-                <a href="#experts-assignments" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="experts-assignments.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>评审任务</span>
                 </a>
-                <a href="#add-expert" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="add-expert.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>添加专家</span>
                 </a>
               </div>
@@ -387,19 +390,19 @@
                 <i class="fa fa-caret-down transition-transform"></i>
               </button>
               <div class="sidebar-group-content pl-12 space-y-1 hidden">
-                <a href="#statistics-overall" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="statistics-overall.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>总体统计</span>
                 </a>
-                <a href="#statistics-experts" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="statistics-experts.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>专家评审统计</span>
                 </a>
-                <a href="#statistics-papers" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <a href="statistics-papers.html" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <span>论文质量统计</span>
                 </a>
               </div>
             </div>
             
-            <a href="#settings" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <a href="settings.html" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
               <i class="fa fa-cog w-5 text-center mr-3"></i>
               <span>系统设置</span>
             </a>
@@ -425,7 +428,7 @@
           <div id="dashboard-page" class="animate-fadeIn">
             <div class="mb-6">
               <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">仪表盘</h1>
-              <p class="text-gray-600">欢迎回来，张教授！这是您的系统概览。</p>
+              <p class="text-gray-600">欢迎回来，宇之笙！这是您的系统概览。</p>
             </div>
             
             <!-- 统计卡片 -->
@@ -436,7 +439,7 @@
                     <p class="text-gray-500 text-sm">待评审论文</p>
                     <h3 class="text-3xl font-bold mt-1">8</h3>
                     <p class="text-green-500 text-sm mt-2 flex items-center">
-                      <i class="fa fa-arrow-up mr-1"></i> 比上周增加 2 篇
+                      <i class="fa fa-arrow-up mr-1"></i> 比上周增加 288 篇
                     </p>
                   </div>
                   <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -449,9 +452,9 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-gray-500 text-sm">已完成评审</p>
-                    <h3 class="text-3xl font-bold mt-1">24</h3>
+                    <h3 class="text-3xl font-bold mt-1">2499</h3>
                     <p class="text-green-500 text-sm mt-2 flex items-center">
-                      <i class="fa fa-arrow-up mr-1"></i> 比上周增加 5 篇
+                      <i class="fa fa-arrow-up mr-1"></i> 比上周增加 588 篇
                     </p>
                   </div>
                   <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center text-success">
@@ -464,9 +467,9 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-gray-500 text-sm">专家总数</p>
-                    <h3 class="text-3xl font-bold mt-1">42</h3>
+                    <h3 class="text-3xl font-bold mt-1">114</h3>
                     <p class="text-green-500 text-sm mt-2 flex items-center">
-                      <i class="fa fa-arrow-up mr-1"></i> 比上月增加 3 位
+                      <i class="fa fa-arrow-up mr-1"></i> 比上月增加 51 位
                     </p>
                   </div>
                   <div class="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center text-info">
@@ -513,12 +516,12 @@
               <div class="bg-white rounded-xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-6">
                   <h2 class="text-xl font-semibold text-gray-800">专家分配情况</h2>
-                  <a href="#experts-list" class="text-sm text-primary hover:text-primary/80 transition-colors">查看全部</a>
+                  <a href="experts-list.html" class="text-sm text-primary hover:text-primary/80 transition-colors">查看全部</a>
                 </div>
                 <div class="space-y-6">
                   <div>
                     <div class="flex justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-700">李教授</span>
+                      <span class="text-sm font-medium text-gray-700">张舸</span>
                       <span class="text-sm font-medium text-gray-700">8/10</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -528,27 +531,27 @@
                   
                   <div>
                     <div class="flex justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-700">王博士</span>
-                      <span class="text-sm font-medium text-gray-700">5/10</span>
+                      <span class="text-sm font-medium text-gray-700">宇之笙</span>
+                      <span class="text-sm font-medium text-gray-700">9/10</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
-                      <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 50%"></div>
+                      <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 90%"></div>
                     </div>
                   </div>
                   
                   <div>
                     <div class="flex justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-700">赵教授</span>
-                      <span class="text-sm font-medium text-gray-700">10/10</span>
+                      <span class="text-sm font-medium text-gray-700">王可乐</span>
+                      <span class="text-sm font-medium text-gray-700">8/10</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
-                      <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 100%"></div>
+                      <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 80%"></div>
                     </div>
                   </div>
                   
                   <div>
                     <div class="flex justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-700">陈研究员</span>
+                      <span class="text-sm font-medium text-gray-700">唐子瑜</span>
                       <span class="text-sm font-medium text-gray-700">7/10</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -557,12 +560,6 @@
                   </div>
                   
                   <div>
-                    <div class="flex justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-700">刘教授</span>
-                      <span class="text-sm font-medium text-gray-700">3/10</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                      <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 30%"></div>
                     </div>
                   </div>
                 </div>
@@ -583,9 +580,9 @@
                       <h3 class="font-medium text-gray-800">人工智能在医疗诊断中的应用研究</h3>
                       <span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">紧急</span>
                     </div>
-                    <p class="text-sm text-gray-600 mb-2">提交人: 王博士</p>
+                    <p class="text-sm text-gray-600 mb-2">提交人: 宇之笙</p>
                     <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-500">截止日期: 3天后</span>
+                      <span class="text-sm text-gray-500">截止日期: 91天后</span>
                       <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
                     </div>
                   </div>
@@ -595,9 +592,9 @@
                       <h3 class="font-medium text-gray-800">大数据分析在教育评估中的应用</h3>
                       <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">常规</span>
                     </div>
-                    <p class="text-sm text-gray-600 mb-2">提交人: 张教授</p>
+                    <p class="text-sm text-gray-600 mb-2">提交人: 张舸</p>
                     <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-500">截止日期: 7天后</span>
+                      <span class="text-sm text-gray-500">截止日期: 66天后</span>
                       <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
                     </div>
                   </div>
@@ -607,9 +604,9 @@
                       <h3 class="font-medium text-gray-800">区块链技术在金融领域的创新应用</h3>
                       <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">常规</span>
                     </div>
-                    <p class="text-sm text-gray-600 mb-2">提交人: 李博士</p>
+                    <p class="text-sm text-gray-600 mb-2">提交人: 王可乐</p>
                     <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-500">截止日期: 5天后</span>
+                      <span class="text-sm text-gray-500">截止日期: 1天后</span>
                       <button class="text-sm text-primary hover:text-primary/80 transition-colors">评审</button>
                     </div>
                   </div>
@@ -631,7 +628,7 @@
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-800">您完成了论文 "机器学习算法优化研究" 的评审</p>
-                      <p class="text-xs text-gray-500 mt-1">2小时前</p>
+                      <p class="text-xs text-gray-500 mt-1">999小时前</p>
                     </div>
                   </div>
                   
@@ -643,7 +640,7 @@
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-800">新论文 "量子计算在密码学中的应用" 已分配给您评审</p>
-                      <p class="text-xs text-gray-500 mt-1">昨天</p>
+                      <p class="text-xs text-gray-500 mt-1">昨年</p>
                     </div>
                   </div>
                   
@@ -655,7 +652,7 @@
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-800">论文 "深度学习模型评估方法" 的评审即将到期</p>
-                      <p class="text-xs text-gray-500 mt-1">2天前</p>
+                      <p class="text-xs text-gray-500 mt-1">2025天前</p>
                     </div>
                   </div>
                   
@@ -667,7 +664,7 @@
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-800">您完成了论文 "数据可视化技术研究" 的评审</p>
-                      <p class="text-xs text-gray-500 mt-1">3天前</p>
+                      <p class="text-xs text-gray-500 mt-1">8888天前</p>
                     </div>
                   </div>
                   
@@ -679,7 +676,7 @@
                     </div>
                     <div class="flex-1">
                       <p class="text-sm text-gray-800">新论文 "智能推荐系统研究" 已分配给您评审</p>
-                      <p class="text-xs text-gray-500 mt-1">4天前</p>
+                      <p class="text-xs text-gray-500 mt-1">9999天前</p>
                     </div>
                   </div>
                 </div>
@@ -691,971 +688,87 @@
     </div>
   </div>
 
-  <!-- 模态框 -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
-      <div class="p-6 border-b">
-        <div class="flex justify-between items-center">
-          <h2 id="modal-title" class="text-xl font-semibold text-gray-800">评审论文</h2>
-          <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-            <i class="fa fa-times text-xl"></i>
-          </button>
+  <!-- 评定论文功能页面 -->
+  <div id="paper-evaluation-page" class="min-h-screen flex flex-col hidden">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white nav-shadow sticky top-0 z-30">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <!-- 左侧Logo和标题 -->
+          <div class="flex items-center">
+            <button id="sidebar-toggle-evaluation" class="mr-4 text-gray-500 hover:text-primary transition-colors md:hidden">
+              <i class="fa fa-bars text-xl"></i>
+            </button>
+            <a href="#" class="flex items-center">
+              <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                <i class="fa fa-file-text-o"></i>
+              </div>
+              <span class="ml-2 font-bold text-xl text-primary">论文评定系统 - 评定论文</span>
+            </a>
+          </div>
+          
+          <!-- 右侧用户信息和通知 -->
+          <!-- 此处省略部分代码，保持原文件结构 -->
         </div>
       </div>
-      
-      <div id="modal-content" class="p-6">
-        <!-- 模态框内容将根据需要动态加载 -->
-      </div>
-      
-      <div class="p-6 border-t flex justify-end space-x-3">
-        <button id="modal-cancel" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          取消
-        </button>
-        <button id="modal-confirm" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-          确认
-        </button>
-      </div>
-    </div>
+    </header>
   </div>
 
-  <!-- JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   <script>
-    // DOM 元素
-    const loginPage = document.getElementById('login-page');
-    const registerPage = document.getElementById('register-page');
-    const app = document.getElementById('app');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const registerBtn = document.getElementById('register-btn');
-    const backToLogin = document.getElementById('back-to-login');
-    const logoutBtn = document.getElementById('logout-btn');
-    const togglePassword = document.getElementById('toggle-password');
-    const regTogglePassword = document.getElementById('reg-toggle-password');
-    const regToggleConfirmPassword = document.getElementById('reg-toggle-confirm-password');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarGroups = document.querySelectorAll('.sidebar-group');
-    const notificationBtn = document.getElementById('notification-btn');
-    const userMenuBtn = document.getElementById('user-menu-btn');
-    const userMenu = document.getElementById('user-menu');
-    const modal = document.getElementById('modal');
-    const closeModal = document.getElementById('close-modal');
-    const modalCancel = document.getElementById('modal-cancel');
-    const modalConfirm = document.getElementById('modal-confirm');
-    const modalTitle = document.getElementById('modal-title');
-    const modalContent = document.getElementById('modal-content');
-    
-    // 初始化应用
-    function initApp() {
-      // 检查用户是否已登录
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      
-      if (isLoggedIn) {
-        showApp();
-        initDashboard();
-      } else {
-        showLoginPage();
-      }
-      
-      // 事件监听器
-      loginForm.addEventListener('submit', handleLogin);
-      registerForm.addEventListener('submit', handleRegister);
-      registerBtn.addEventListener('click', showRegisterPage);
-      backToLogin.addEventListener('click', showLoginPage);
-      logoutBtn.addEventListener('click', handleLogout);
-      togglePassword.addEventListener('click', togglePasswordVisibility);
-      regTogglePassword.addEventListener('click', toggleRegPasswordVisibility);
-      regToggleConfirmPassword.addEventListener('click', toggleRegConfirmPasswordVisibility);
-      sidebarToggle.addEventListener('click', toggleSidebar);
-      notificationBtn.addEventListener('click', toggleNotifications);
-      userMenuBtn.addEventListener('click', toggleUserMenu);
-      closeModal.addEventListener('click', hideModal);
-      modalCancel.addEventListener('click', hideModal);
-      
-      // 侧边栏组切换
-      sidebarGroups.forEach(group => {
-        const header = group.querySelector('.sidebar-group-header');
-        const content = group.querySelector('.sidebar-group-content');
-        const icon = header.querySelector('.fa-caret-down');
-        
-        header.addEventListener('click', () => {
-          content.classList.toggle('hidden');
-          icon.classList.toggle('rotate-180');
-        });
-      });
-      
-      // 模态框确认按钮事件
-      modalConfirm.addEventListener('click', () => {
-        const modalType = modal.dataset.type;
-        
-        if (modalType === 'review-paper') {
-          submitReview();
-        } else if (modalType === 'submit-paper') {
-          submitPaper();
-        }
-      });
-      
-      // 初始化路由
-      initRouter();
-    }
-    
-    // 路由初始化
-    function initRouter() {
-      // 监听URL变化
-      window.addEventListener('hashchange', handleRouteChange);
-      
-      // 初始路由处理
-      handleRouteChange();
-    }
-    
-    // 路由处理
-    function handleRouteChange() {
-      const hash = window.location.hash || '#dashboard';
-      const content = document.getElementById('content');
-      
-      // 清空内容区域
-      content.innerHTML = '';
-      
-      // 根据路由加载不同内容
-      switch(hash) {
-        case '#dashboard':
-          loadDashboard();
-          break;
-        case '#papers-submitted':
-          loadPapersSubmitted();
-          break;
-        case '#papers-reviewing':
-          loadPapersReviewing();
-          break;
-        case '#papers-reviewed':
-          loadPapersReviewed();
-          break;
-        case '#submit-paper':
-          loadSubmitPaper();
-          break;
-        case '#experts-list':
-          loadExpertsList();
-          break;
-        case '#experts-assignments':
-          loadExpertsAssignments();
-          break;
-        case '#add-expert':
-          loadAddExpert();
-          break;
-        case '#statistics-overall':
-          loadStatisticsOverall();
-          break;
-        case '#statistics-experts':
-          loadStatisticsExperts();
-          break;
-        case '#statistics-papers':
-          loadStatisticsPapers();
-          break;
-        case '#settings':
-          loadSettings();
-          break;
-        default:
-          loadDashboard();
-      }
-    }
-    
-    // 显示登录页面
-    function showLoginPage() {
-      loginPage.classList.remove('hidden');
-      registerPage.classList.add('hidden');
-      app.classList.add('hidden');
-    }
-    
-    // 显示注册页面
-    function showRegisterPage() {
-      loginPage.classList.add('hidden');
-      registerPage.classList.remove('hidden');
-      app.classList.add('hidden');
-    }
-    
-    // 显示应用主界面
-    function showApp() {
-      loginPage.classList.add('hidden');
-      registerPage.classList.add('hidden');
-      app.classList.remove('hidden');
-    }
-    
-    // 处理登录
-    function handleLogin(e) {
-      e.preventDefault();
-      
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      
-      // 模拟登录验证
-      if (username && password) {
-        // 存储登录状态
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', username);
+
+      if (username === 'root' && password === '123456') {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+      } else {
+        alert('用户名或密码错误，请重试。');
+      }
+    });
+    // 侧边栏菜单展开/折叠功能
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有侧边栏组标题
+        const groupHeaders = document.querySelectorAll('.sidebar-group-header');
         
-        // 显示应用
-        showApp();
-        initDashboard();
-      } else {
-        alert('请输入用户名和密码');
-      }
-    }
-    
-    // 处理注册
-    function handleRegister(e) {
-      e.preventDefault();
-      
-      const username = document.getElementById('reg-username').value;
-      const email = document.getElementById('reg-email').value;
-      const password = document.getElementById('reg-password').value;
-      const confirmPassword = document.getElementById('reg-confirm-password').value;
-      const role = document.querySelector('input[name="role"]:checked').value;
-      
-      // 简单验证
-      if (!username || !email || !password) {
-        alert('请填写所有必填字段');
-        return;
-      }
-      
-      if (password !== confirmPassword) {
-        alert('两次输入的密码不一致');
-        return;
-      }
-      
-      // 模拟注册成功
-      alert('注册成功，请登录');
-      showLoginPage();
-    }
-    
-    // 处理登出
-    function handleLogout() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      showLoginPage();
-    }
-    
-    // 切换密码可见性
-    function togglePasswordVisibility() {
-      const passwordInput = document.getElementById('password');
-      const icon = togglePassword.querySelector('i');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      }
-    }
-    
-    // 切换注册密码可见性
-    function toggleRegPasswordVisibility() {
-      const passwordInput = document.getElementById('reg-password');
-      const icon = regTogglePassword.querySelector('i');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      }
-    }
-    
-    // 切换确认密码可见性
-    function toggleRegConfirmPasswordVisibility() {
-      const passwordInput = document.getElementById('reg-confirm-password');
-      const icon = regToggleConfirmPassword.querySelector('i');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      }
-    }
-    
-    // 切换侧边栏
-    function toggleSidebar() {
-      sidebar.classList.toggle('-translate-x-full');
-    }
-    
-    // 切换通知
-    function toggleNotifications() {
-      // 模拟通知下拉菜单
-      alert('通知功能将在未来版本中实现');
-    }
-    
-    // 切换用户菜单
-    function toggleUserMenu() {
-      userMenu.classList.toggle('hidden');
-    }
-    
-    // 显示模态框
-    function showModal(type, title, content) {
-      modal.dataset.type = type;
-      modalTitle.textContent = title;
-      modalContent.innerHTML = content;
-      modal.classList.remove('hidden');
-    }
-    
-    // 隐藏模态框
-    function hideModal() {
-      modal.classList.add('hidden');
-    }
-    
-    // 初始化仪表盘
-    function initDashboard() {
-      // 设置用户名
-      const username = localStorage.getItem('username');
-      document.getElementById('user-name').textContent = username || '张教授';
-      
-      // 初始化图表
-      initCharts();
-    }
-    
-    // 初始化图表
-    function initCharts() {
-      const ctx = document.getElementById('review-progress-chart').getContext('2d');
-      
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
-          datasets: [
-            {
-              label: '提交论文数',
-              data: [12, 19, 15, 22, 18, 25],
-              borderColor: '#165DFF',
-              backgroundColor: 'rgba(22, 93, 255, 0.1)',
-              tension: 0.4,
-              fill: true
-            },
-            {
-              label: '完成评审数',
-              data: [8, 15, 12, 18, 15, 20],
-              borderColor: '#36CFC9',
-              backgroundColor: 'rgba(54, 207, 201, 0.1)',
-              tension: 0.4,
-              fill: true
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                drawBorder: false
-              }
-            },
-            x: {
-              grid: {
-                display: false
-              }
-            }
-          }
+        // 为每个标题添加点击事件
+        groupHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                // 获取对应的内容区域
+                const content = this.nextElementSibling;
+                // 获取下拉图标
+                const icon = this.querySelector('.fa-caret-down');
+                
+                // 切换内容区域的可见性
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    content.classList.add('animate-fadeIn');
+                    // 旋转图标
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.add('hidden');
+                    // 恢复图标
+                    icon.style.transform = 'rotate(0)';
+                }
+            });
+        });
+        
+        // 移动设备侧边栏切换
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
         }
-      });
-    }
-    
-    // 加载仪表盘内容
-    function loadDashboard() {
-      const content = document.getElementById('content');
-      content.innerHTML = document.getElementById('dashboard-page').innerHTML;
-      
-      // 重新初始化图表
-      initCharts();
-    }
-    
-    // 加载已提交论文页面
-    function loadPapersSubmitted() {
-      const content = document.getElementById('content');
-      content.innerHTML = `
-        <div class="animate-fadeIn">
-          <div class="mb-6">
-            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">已提交论文</h1>
-            <p class="text-gray-600">查看和管理您已提交的论文</p>
-          </div>
-          
-          <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <div class="flex items-center mb-4 md:mb-0">
-                <div class="relative mr-4">
-                  <input type="text" placeholder="搜索论文..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-                <select class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <option>所有状态</option>
-                  <option>评审中</option>
-                  <option>已通过</option>
-                  <option>已拒绝</option>
-                </select>
-              </div>
-              <button id="submit-new-paper-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center">
-                <i class="fa fa-plus mr-2"></i>提交新论文
-              </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">论文标题</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交日期</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均分</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">人工智能在医疗诊断中的应用研究</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-06-10</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">评审中</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">-</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看</button>
-                      <button class="text-gray-500 hover:text-gray-700">删除</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">大数据分析在教育评估中的应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-22</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已通过</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">88.5</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看</button>
-                      <button class="text-gray-500 hover:text-gray-700">删除</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">区块链技术在金融领域的创新应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-15</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">已拒绝</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">62.0</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看</button>
-                      <button class="text-gray-500 hover:text-gray-700">删除</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">深度学习模型评估方法研究</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-04-30</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已通过</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">92.0</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看</button>
-                      <button class="text-gray-500 hover:text-gray-700">删除</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="mt-6 flex items-center justify-between">
-              <div class="text-sm text-gray-700">
-                显示 <span class="font-medium">1</span> 到 <span class="font-medium">4</span> 条，共 <span class="font-medium">24</span> 条
-              </div>
-              <div class="flex space-x-2">
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">上一页</button>
-                <button class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">1</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">2</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">3</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">下一页</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // 添加提交新论文按钮事件
-      document.getElementById('submit-new-paper-btn').addEventListener('click', () => {
-        showModal(
-          'submit-paper', 
-          '提交新论文', 
-          `
-            <form id="paper-submission-form" class="space-y-6">
-              <div>
-                <label for="paper-title" class="block text-sm font-medium text-gray-700 mb-1">论文标题</label>
-                <input type="text" id="paper-title" name="title" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入论文标题">
-              </div>
-              
-              <div>
-                <label for="paper-abstract" class="block text-sm font-medium text-gray-700 mb-1">摘要</label>
-                <textarea id="paper-abstract" name="abstract" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入论文摘要"></textarea>
-              </div>
-              
-              <div>
-                <label for="paper-keywords" class="block text-sm font-medium text-gray-700 mb-1">关键词</label>
-                <input type="text" id="paper-keywords" name="keywords" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入关键词，用逗号分隔">
-              </div>
-              
-              <div>
-                <label for="paper-file" class="block text-sm font-medium text-gray-700 mb-1">上传论文文件</label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors">
-                  <div class="space-y-1 text-center">
-                    <i class="fa fa-cloud-upload text-3xl text-gray-400"></i>
-                    <div class="flex text-sm text-gray-600">
-                      <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none">
-                        <span>上传文件</span>
-                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
-                      </label>
-                      <p class="pl-1">或拖放文件</p>
-                    </div>
-                    <p class="text-xs text-gray-500">支持 PDF, DOC, DOCX 文件 (最大 10MB)</p>
-                  </div>
-                </div>
-              </div>
-            </form>
-          `
-        );
-      });
-    }
-    
-    // 加载评审中论文页面
-    function loadPapersReviewing() {
-      const content = document.getElementById('content');
-      content.innerHTML = `
-        <div class="animate-fadeIn">
-          <div class="mb-6">
-            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">评审中论文</h1>
-            <p class="text-gray-600">查看和管理正在评审中的论文</p>
-          </div>
-          
-          <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <div class="flex items-center mb-4 md:mb-0">
-                <div class="relative mr-4">
-                  <input type="text" placeholder="搜索论文..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-                <select class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <option>所有专家</option>
-                  <option>李教授</option>
-                  <option>王博士</option>
-                  <option>赵教授</option>
-                </select>
-              </div>
-              <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center">
-                <i class="fa fa-refresh mr-2"></i>刷新
-              </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">论文标题</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交日期</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">专家</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">评审状态</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">人工智能在医疗诊断中的应用研究</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-06-10</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">李</div>
-                          <span class="ml-2 text-sm text-gray-700">李教授</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">王</div>
-                          <span class="ml-2 text-sm text-gray-700">王博士</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">赵</div>
-                          <span class="ml-2 text-sm text-gray-700">赵教授</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已完成</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                      </div>
-                    </td>
-                    
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80">查看详情</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">区块链技术在金融领域的创新应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-15</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">刘</div>
-                          <span class="ml-2 text-sm text-gray-700">刘教授</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">陈</div>
-                          <span class="ml-2 text-sm text-gray-700">陈研究员</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">周</div>
-                          <span class="ml-2 text-sm text-gray-700">周博士</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80">查看详情</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">量子计算在密码学中的应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-05</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">吴</div>
-                          <span class="ml-2 text-sm text-gray-700">吴教授</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">孙</div>
-                          <span class="ml-2 text-sm text-gray-700">孙博士</span>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">郑</div>
-                          <span class="ml-2 text-sm text-gray-700">郑教授</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="space-y-1">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已完成</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已完成</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">进行中</span>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80">查看详情</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="mt-6 flex items-center justify-between">
-              <div class="text-sm text-gray-700">
-                显示 <span class="font-medium">1</span> 到 <span class="font-medium">3</span> 条，共 <span class="font-medium">12</span> 条
-              </div>
-              <div class="flex space-x-2">
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">上一页</button>
-                <button class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">1</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">2</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">3</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">下一页</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    
-    // 加载已评审论文页面
-    function loadPapersReviewed() {
-      const content = document.getElementById('content');
-      content.innerHTML = `
-        <div class="animate-fadeIn">
-          <div class="mb-6">
-            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">已评审论文</h1>
-            <p class="text-gray-600">查看已完成评审的论文及其结果</p>
-          </div>
-          
-          <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <div class="flex items-center mb-4 md:mb-0">
-                <div class="relative mr-4">
-                  <input type="text" placeholder="搜索论文..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-                <select class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <option>所有状态</option>
-                  <option>已通过</option>
-                  <option>已拒绝</option>
-                </select>
-              </div>
-              <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center">
-                <i class="fa fa-refresh mr-2"></i>刷新
-              </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">论文标题</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交日期</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成日期</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均分</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">大数据分析在教育评估中的应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-22</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-06-05</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">88.5</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已通过</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看详情</button>
-                      <button class="text-primary hover:text-primary/80">下载报告</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">深度学习模型评估方法研究</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-04-30</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-20</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">92.0</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已通过</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看详情</button>
-                      <button class="text-primary hover:text-primary/80">下载报告</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">区块链技术在金融领域的创新应用</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-15</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-06-01</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">62.0</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">已拒绝</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看详情</button>
-                      <button class="text-primary hover:text-primary/80">下载报告</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">智能推荐系统研究</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-04-10</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">2023-05-05</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">78.5</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已通过</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button class="text-primary hover:text-primary/80 mr-4">查看详情</button>
-                      <button class="text-primary hover:text-primary/80">下载报告</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="mt-6 flex items-center justify-between">
-              <div class="text-sm text-gray-700">
-                显示 <span class="font-medium">1</span> 到 <span class="font-medium">4</span> 条，共 <span class="font-medium">18</span> 条
-              </div>
-              <div class="flex space-x-2">
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">上一页</button>
-                <button class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">1</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">2</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">3</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">下一页</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    
-    // 加载提交新论文页面
-    function loadSubmitPaper() {
-      const content = document.getElementById('content');
-      content.innerHTML = `
-        <div class="animate-fadeIn">
-          <div class="mb-6">
-            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">提交新论文</h1>
-            <p class="text-gray-600">填写以下信息并上传您的论文</p>
-          </div>
-          
-          <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-            <form id="submit-paper-form" class="space-y-6">
-              <div>
-                <label for="paper-title" class="block text-sm font-medium text-gray-700 mb-1">论文标题</label>
-                <input type="text" id="paper-title" name="title" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入论文标题">
-              </div>
-              
-              <div>
-                <label for="paper-author" class="block text-sm font-medium text-gray-700 mb-1">作者</label>
-                <input type="text" id="paper-author" name="author" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入作者姓名（如有多个作者，请用逗号分隔）">
-              </div>
-              
-              <div>
-                <label for="paper-abstract" class="block text-sm font-medium text-gray-700 mb-1">摘要</label>
-                <textarea id="paper-abstract" name="abstract" rows="6" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入论文摘要"></textarea>
-              </div>
-              
-              <div>
-                <label for="paper-keywords" class="block text-sm font-medium text-gray-700 mb-1">关键词</label>
-                <input type="text" id="paper-keywords" name="keywords" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入关键词，用逗号分隔">
-              </div>
-              
-              <div>
-                <label for="paper-category" class="block text-sm font-medium text-gray-700 mb-1">论文分类</label>
-                <select id="paper-category" name="category" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                  <option value="">请选择分类</option>
-                  <option value="computer-science">计算机科学</option>
-                  <option value="mathematics">数学</option>
-                  <option value="physics">物理学</option>
-                  <option value="chemistry">化学</option>
-                  <option value="biology">生物学</option>
-                  <option value="medicine">医学</option>
-                  <option value="engineering">工程学</option>
-                  <option value="social-sciences">社会科学</option>
-                  <option value="humanities">人文科学</option>
-                </select>
-              </div>
-              
-              <div>
-                <label for="paper-file" class="block text-sm font-medium text-gray-700 mb-1">上传论文文件</label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors">
-                  <div class="space-y-1 text-center">
-                    <i class="fa fa-cloud-upload text-3xl text-gray-400"></i>
-                    <div class="flex text-sm text-gray-600">
-                      <label for="paper-file-input" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none">
-                        <span>上传文件</span>
-                        <input id="paper-file-input" name="paper-file" type="file" class="sr-only">
-                      </label>
-                      <p class="pl-1">或拖放文件</p>
-                    </div>
-                    <p class="text-xs text-gray-500">支持 PDF, DOC, DOCX 文件 (最大 10MB)</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="pt-4">
-                <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center">
-                  <span>提交论文</span>
-                  <i class="fa fa-paper-plane ml-2"></i>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      `;
-      
-      // 添加提交表单事件
-      document.getElementById('submit-paper-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('论文提交成功！我们将尽快为您分配评审专家。');
-        window.location.hash = '#papers-submitted';
-      });
-    }
-    
+    });
+
+  </script>
+</body>
+</html>

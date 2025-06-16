@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>论文评定系统 - 仪表盘</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#FF7D00',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            info: '#1890FF',
+            light: '#F2F3F5',
+            dark: '#1D2129'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .nav-shadow {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .text-balance {
+        text-wrap: balance;
+      }
+    }
+  </style>
+  
+  <!-- 全局样式 -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .animate-slideUp {
+      animation: slideUp 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-dark">
+<!-- 顶部导航栏 -->
+  <header class="bg-white nav-shadow sticky top-0 z-30">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- 左侧Logo和标题 -->
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-4 text-gray-500 hover:text-primary transition-colors md:hidden">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+          <a href="#" class="flex items-center">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+              <i class="fa fa-file-text-o"></i>
+            </div>
+            <span class="ml-2 font-bold text-xl text-primary">论文评定系统</span>
+          </a>
+        </div>
+        
+        <!-- 右侧用户信息和通知 -->
+        <div class="flex items-center space-x-4">
+          <button id="notification-btn" class="relative p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-full transition-colors">
+            <i class="fa fa-bell text-xl"></i>
+            <span id="notification-badge" class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
+          </button>
+          
+          <div class="relative group">
+            <button id="user-menu-btn" class="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-full transition-colors">
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-user"></i>
+              </div>
+              <span id="user-name" class="hidden md:inline font-medium">张教授</span>
+              <i class="fa fa-caret-down text-gray-500"></i>
+            </button>
+            
+            <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden group-hover:block animate-fadeIn">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fa fa-user-circle-o mr-2"></i>个人资料
+              </a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fa fa-cog mr-2"></i>设置
+              </a>
+              <div class="border-t border-gray-200 my-1"></div>
+              <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <i class="fa fa-sign-out mr-2"></i>退出登录
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="flex flex-1">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg transform -translate-x-full md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out">
+      <div class="flex flex-col h-full">
+        <div class="p-4 border-b">
+          <h2 class="text-lg font-semibold text-gray-800">控制面板</h2>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+          <a href="#dashboard" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <i class="fa fa-dashboard w-5 text-center mr-3"></i>
+            <span>仪表盘</span>
+          </a>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-file-text w-5 text-center mr-3"></i>
+                <span>论文管理</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#papers-submitted" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>已提交论文</span>
+              </a>
+              <a href="#papers-reviewing" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>评审中论文</span>
+              </a>
+              <a href="#papers-reviewed" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>已评审论文</span>
+              </a>
+              <a href="#submit-paper" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>提交新论文</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-users w-5 text-center mr-3"></i>
+                <span>专家管理</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#experts-list" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>专家列表</span>
+              </a>
+              <a href="#experts-assignments" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>评审任务</span>
+              </a>
+              <a href="#add-expert" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>添加专家</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-group">
+            <button class="sidebar-group-header flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <div class="flex items-center">
+                <i class="fa fa-bar-chart w-5 text-center mr-3"></i>
+                <span>统计分析</span>
+              </div>
+              <i class="fa fa-caret-down transition-transform"></i>
+            </button>
+            <div class="sidebar-group-content pl-12 space-y-1 hidden">
+              <a href="#statistics-overall" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>总体统计</span>
+              </a>
+              <a href="#statistics-experts" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>专家评审统计</span>
+              </a>
+              <a href="#statistics-papers" class="sidebar-link flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <span>论文质量统计</span>
+              </a>
+            </div>
+          </div>
+          
+          <a href="#settings" class="sidebar-link flex items-center px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <i class="fa fa-cog w-5 text-center mr-3"></i>
+            <span>系统设置</span>
+          </a>
+        </nav>
+        
+        <div class="p-4 border-t">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="font-medium text-gray-800 mb-2">需要帮助?</h3>
+            <p class="text-sm text-gray-600 mb-3">如有任何问题，请联系系统管理员</p>
+            <a href="#" class="inline-flex items-center text-sm text-primary hover:text-primary/80">
+              <i class="fa fa-envelope-o mr-1"></i> 发送邮件
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  <!-- 主内容区 -->
+  <main class="flex-1 p-4 md:p-6 bg-gray-50">
+    <div id="add-expert-page" class="animate-fadeIn">
+      <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">添加专家</h1>
+      <form>
+        <div class="mb-4">
+          <label for="expert-name" class="block text-sm font-medium text-gray-700 mb-1">专家姓名</label>
+          <input type="text" id="expert-name" class="w-full pl-4 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入专家姓名">
+        </div>
+        <div class="mb-4">
+          <label for="expert-email" class="block text-sm font-medium text-gray-700 mb-1">专家邮箱</label>
+          <input type="email" id="expert-email" class="w-full pl-4 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300" placeholder="请输入专家邮箱">
+        </div>
+        <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center">
+          <span>添加专家</span>
+        </button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
