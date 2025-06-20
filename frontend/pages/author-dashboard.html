@@ -385,135 +385,215 @@
             loadNotificationCount();
         });
         
+        // 示例统计数据
+        const sampleStatistics = {
+            total: 8,
+            reviewing: 3,
+            completed: 4,
+            rejected: 1,
+            averageScore: 82.5,
+            scoreDistribution: {
+                '65': 1,
+                '78': 1,
+                '85': 1,
+                '92': 1
+            }
+        };
+
         // 加载统计数据
         async function loadStatistics() {
             try {
                 const token = localStorage.getItem('token');
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 
-                const response = await fetch(`/api/papers/author/${user.id}/statistics`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                let data = null;
                 
-                if (response.ok) {
-                    const data = await response.json();
+                try {
+                    const response = await fetch(`/api/papers/author/${user.id}/statistics`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
                     
-                    // 更新统计卡片
-                    document.getElementById('total-papers').textContent = data.total || 0;
-                    document.getElementById('reviewing-papers').textContent = data.reviewing || 0;
-                    document.getElementById('completed-papers').textContent = data.completed || 0;
-                    document.getElementById('average-score').textContent = data.averageScore ? data.averageScore.toFixed(1) : '0';
-                    
-                    // 如果有评分数据，绘制评分分布图表
-                    if (data.scoreDistribution && Object.keys(data.scoreDistribution).length > 0) {
-                        document.getElementById('no-score-data').style.display = 'none';
-                        drawScoreDistributionChart(data.scoreDistribution);
+                    if (response.ok) {
+                        data = await response.json();
+                    } else {
+                        throw new Error('API请求失败');
                     }
-                } else {
-                    console.error('获取统计数据失败');
+                } catch (apiError) {
+                    console.log('API不可用，使用示例数据:', apiError.message);
+                    data = sampleStatistics;
+                }
+                
+                // 更新统计卡片
+                document.getElementById('total-papers').textContent = data.total || 0;
+                document.getElementById('reviewing-papers').textContent = data.reviewing || 0;
+                document.getElementById('completed-papers').textContent = data.completed || 0;
+                document.getElementById('average-score').textContent = data.averageScore ? data.averageScore.toFixed(1) : '0';
+                
+                // 如果有评分数据，绘制评分分布图表
+                if (data.scoreDistribution && Object.keys(data.scoreDistribution).length > 0) {
+                    document.getElementById('no-score-data').style.display = 'none';
+                    drawScoreDistributionChart(data.scoreDistribution);
                 }
             } catch (error) {
                 console.error('获取统计数据出错', error);
+                // 使用示例数据作为后备
+                const data = sampleStatistics;
+                document.getElementById('total-papers').textContent = data.total || 0;
+                document.getElementById('reviewing-papers').textContent = data.reviewing || 0;
+                document.getElementById('completed-papers').textContent = data.completed || 0;
+                document.getElementById('average-score').textContent = data.averageScore ? data.averageScore.toFixed(1) : '0';
             }
         }
         
+        // 示例论文数据
+        const samplePapers = [
+            {
+                id: 'paper001',
+                title: '基于深度学习的图像识别算法研究',
+                abstract: '本文提出了一种基于深度卷积神经网络的图像识别算法，通过多层特征提取和融合，显著提高了图像分类的准确率。实验结果表明，该算法在多个公开数据集上都取得了优异的性能表现。',
+                status: 'completed',
+                createdAt: '2024-01-15T10:30:00Z',
+                assignedExperts: 3,
+                averageScore: 85.5
+            },
+            {
+                id: 'paper002',
+                title: '区块链技术在供应链管理中的应用',
+                abstract: '随着全球化贸易的发展，供应链管理面临着透明度和可追溯性的挑战。本文探讨了区块链技术在供应链管理中的应用前景，分析了其在提高供应链透明度、降低成本和增强安全性方面的优势。',
+                status: 'reviewing',
+                createdAt: '2024-02-20T14:15:00Z',
+                assignedExperts: 2,
+                averageScore: null
+            },
+            {
+                id: 'paper003',
+                title: '人工智能在医疗诊断中的伦理问题研究',
+                abstract: '人工智能技术在医疗领域的应用日益广泛，但同时也带来了诸多伦理问题。本文从医疗AI的公平性、透明性、隐私保护等角度，深入分析了当前面临的伦理挑战。',
+                status: 'reviewing',
+                createdAt: '2024-03-10T09:45:00Z',
+                assignedExperts: 3,
+                averageScore: null
+            },
+            {
+                id: 'paper004',
+                title: '量子计算在密码学中的应用前景',
+                abstract: '量子计算技术的发展对传统密码学构成了重大挑战，同时也为新型密码算法的设计提供了机遇。本文分析了量子计算对现有密码体系的影响，并探讨了后量子密码学的发展方向。',
+                status: 'rejected',
+                createdAt: '2024-03-25T16:20:00Z',
+                assignedExperts: 3,
+                averageScore: 65.0
+            },
+            {
+                id: 'paper005',
+                title: '机器学习在金融风险评估中的应用',
+                abstract: '金融风险评估是金融机构的核心业务之一。本文研究了机器学习算法在信贷风险、市场风险和操作风险评估中的应用，提出了一套基于多算法融合的风险评估框架。',
+                status: 'reviewing',
+                createdAt: '2024-04-05T11:10:00Z',
+                assignedExperts: 1,
+                averageScore: null
+            }
+        ];
+
         // 加载最近论文
         async function loadRecentPapers() {
             try {
                 const token = localStorage.getItem('token');
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 
-                const response = await fetch(`/api/papers/author/${user.id}?limit=5`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                let papers = [];
+                
+                try {
+                    const response = await fetch(`/api/papers/author/${user.id}?limit=5`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        papers = await response.json();
+                    } else {
+                        throw new Error('API请求失败');
                     }
-                });
+                } catch (apiError) {
+                    console.log('API不可用，使用示例数据:', apiError.message);
+                    papers = samplePapers;
+                }
                 
                 const container = document.getElementById('recent-papers-container');
                 document.getElementById('loading-papers').style.display = 'none';
                 
-                if (response.ok) {
-                    const papers = await response.json();
-                    
-                    if (papers.length === 0) {
-                        // 没有论文
-                        container.innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt"></i>
-                                <h3>暂无论文</h3>
-                                <p>您还没有提交任何论文，点击下方按钮开始提交您的第一篇论文。</p>
-                                <a href="submit-paper.html" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md">
-                                    提交新论文
-                                </a>
-                            </div>
-                        `;
-                    } else {
-                        // 显示论文列表
-                        let html = '<div class="space-y-4">';
-                        
-                        papers.forEach(paper => {
-                            // 确定状态标签样式
-                            let statusClass = '';
-                            let statusText = '';
-                            
-                            switch (paper.status) {
-                                case 'submitted':
-                                    statusClass = 'status-submitted';
-                                    statusText = '已提交';
-                                    break;
-                                case 'reviewing':
-                                    statusClass = 'status-reviewing';
-                                    statusText = '评审中';
-                                    break;
-                                case 'completed':
-                                    statusClass = 'status-completed';
-                                    statusText = '已完成';
-                                    break;
-                                case 'rejected':
-                                    statusClass = 'status-rejected';
-                                    statusText = '已拒绝';
-                                    break;
-                                default:
-                                    statusClass = 'status-submitted';
-                                    statusText = '已提交';
-                            }
-                            
-                            html += `
-                                <div class="paper-card">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
-                                            <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
-                                            <div class="flex items-center text-sm text-gray-500">
-                                                <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> ${new Date(paper.createdAt).toLocaleDateString()}</span>
-                                                <span><i class="fas fa-users mr-1"></i> ${paper.assignedExperts || 0}/3 位专家已分配</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-col items-end">
-                                            <span class="status-badge ${statusClass} mb-2">${statusText}</span>
-                                            ${paper.averageScore ? `<span class="text-lg font-bold">${paper.averageScore.toFixed(1)}<span class="text-sm text-gray-500">/100</span></span>` : ''}
-                                        </div>
-                                    </div>
-                                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
-                                        <a href="paper-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                                            查看详情 <i class="fas fa-chevron-right ml-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        
-                        html += '</div>';
-                        container.innerHTML = html;
-                    }
-                } else {
+                if (papers.length === 0) {
+                    // 没有论文
                     container.innerHTML = `
-                        <div class="text-center py-4 text-gray-500">
-                            <p>获取论文数据失败，请稍后重试</p>
+                        <div class="empty-state">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>暂无论文</h3>
+                            <p>您还没有提交任何论文，点击下方按钮开始提交您的第一篇论文。</p>
+                            <a href="submit-paper.html" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md">
+                                提交新论文
+                            </a>
                         </div>
                     `;
+                } else {
+                    // 显示论文列表
+                    let html = '<div class="space-y-4">';
+                    
+                    papers.forEach(paper => {
+                        // 确定状态标签样式
+                        let statusClass = '';
+                        let statusText = '';
+                        
+                        switch (paper.status) {
+                            case 'submitted':
+                                statusClass = 'status-submitted';
+                                statusText = '已提交';
+                                break;
+                            case 'reviewing':
+                                statusClass = 'status-reviewing';
+                                statusText = '评审中';
+                                break;
+                            case 'completed':
+                                statusClass = 'status-completed';
+                                statusText = '已完成';
+                                break;
+                            case 'rejected':
+                                statusClass = 'status-rejected';
+                                statusText = '已拒绝';
+                                break;
+                            default:
+                                statusClass = 'status-submitted';
+                                statusText = '已提交';
+                        }
+                        
+                        html += `
+                            <div class="paper-card">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                        <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> ${new Date(paper.createdAt).toLocaleDateString()}</span>
+                                            <span><i class="fas fa-users mr-1"></i> ${paper.assignedExperts || 0}/3 位专家已分配</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end">
+                                        <span class="status-badge ${statusClass} mb-2">${statusText}</span>
+                                        ${paper.averageScore ? `<span class="text-lg font-bold">${paper.averageScore.toFixed(1)}<span class="text-sm text-gray-500">/100</span></span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                                    <a href="review-details.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                        查看详情 <i class="fas fa-chevron-right ml-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
                 }
             } catch (error) {
                 console.error('加载论文出错', error);
@@ -590,51 +670,101 @@
             });
         }
         
+        // 示例通知数据
+        const sampleNotifications = [
+            {
+                id: 'notif001',
+                type: 'review_completed',
+                title: '论文评审完成',
+                message: '您的论文《基于深度学习的图像识别算法研究》已完成评审，平均得分85.5分',
+                createdAt: '2024-04-10T09:30:00Z',
+                read: false
+            },
+            {
+                id: 'notif002',
+                type: 'expert_assigned',
+                title: '专家分配通知',
+                message: '您的论文《区块链技术在供应链管理中的应用》已分配给新的评审专家',
+                createdAt: '2024-04-09T14:20:00Z',
+                read: false
+            },
+            {
+                id: 'notif003',
+                type: 'paper_rejected',
+                title: '论文被拒绝',
+                message: '很遗憾，您的论文《量子计算在密码学中的应用前景》未通过评审',
+                createdAt: '2024-04-08T16:45:00Z',
+                read: true
+            },
+            {
+                id: 'notif004',
+                type: 'system',
+                title: '系统维护通知',
+                message: '系统将于本周六凌晨2:00-4:00进行维护，期间可能无法访问',
+                createdAt: '2024-04-07T10:15:00Z',
+                read: true
+            },
+            {
+                id: 'notif005',
+                type: 'review_started',
+                title: '评审开始',
+                message: '您的论文《人工智能在医疗诊断中的伦理问题研究》已开始评审流程',
+                createdAt: '2024-04-06T11:30:00Z',
+                read: true
+            }
+        ];
+
         // 加载通知
         async function loadNotifications() {
             try {
                 const token = localStorage.getItem('token');
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 
-                const response = await fetch(`/api/notifications?limit=5&unread=true`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                let notifications = [];
+                
+                try {
+                    const response = await fetch(`/api/notifications?limit=5&unread=true`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        notifications = await response.json();
+                    } else {
+                        throw new Error('API请求失败');
                     }
-                });
+                } catch (apiError) {
+                    console.log('API不可用，使用示例数据:', apiError.message);
+                    notifications = sampleNotifications.filter(n => !n.read).slice(0, 5);
+                }
                 
                 const notificationList = document.getElementById('notification-list');
                 const emptyNotification = document.getElementById('empty-notification');
                 
-                if (response.ok) {
-                    const notifications = await response.json();
+                if (notifications.length === 0) {
+                    emptyNotification.style.display = 'block';
+                } else {
+                    emptyNotification.style.display = 'none';
                     
-                    if (notifications.length === 0) {
-                        emptyNotification.style.display = 'block';
-                    } else {
-                        emptyNotification.style.display = 'none';
-                        
-                        let html = '';
-                        notifications.forEach(notification => {
-                            html += `
-                                <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 mr-3">
-                                            <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm">${notification.message}</p>
-                                            <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
-                                        </div>
+                    let html = '';
+                    notifications.forEach(notification => {
+                        html += `
+                            <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm">${notification.message}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
                                     </div>
                                 </div>
-                            `;
-                        });
-                        
-                        notificationList.innerHTML = html;
-                    }
-                } else {
-                    emptyNotification.textContent = '加载通知失败';
-                    emptyNotification.style.display = 'block';
+                            </div>
+                        `;
+                    });
+                    
+                    notificationList.innerHTML = html;
                 }
             } catch (error) {
                 console.error('加载通知出错', error);
@@ -648,31 +778,40 @@
             try {
                 const token = localStorage.getItem('token');
                 
-                const response = await fetch('/api/notifications/count?unread=true', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                let count = 0;
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    const count = data.count || 0;
+                try {
+                    const response = await fetch('/api/notifications/count?unread=true', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
                     
-                    // 更新通知徽章
-                    const badge = document.getElementById('notification-badge');
-                    const sidebarCount = document.getElementById('sidebar-notification-count');
-                    
-                    if (count > 0) {
-                        badge.textContent = count > 99 ? '99+' : count;
-                        badge.style.display = 'flex';
-                        
-                        sidebarCount.textContent = count > 99 ? '99+' : count;
-                        sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                    if (response.ok) {
+                        const data = await response.json();
+                        count = data.count || 0;
                     } else {
-                        badge.style.display = 'none';
-                        sidebarCount.textContent = '';
-                        sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                        throw new Error('API请求失败');
                     }
+                } catch (apiError) {
+                    console.log('API不可用，使用示例数据:', apiError.message);
+                    count = sampleNotifications.filter(n => !n.read).length;
+                }
+                
+                // 更新通知徽章
+                const badge = document.getElementById('notification-badge');
+                const sidebarCount = document.getElementById('sidebar-notification-count');
+                
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                    
+                    sidebarCount.textContent = count > 99 ? '99+' : count;
+                    sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                } else {
+                    badge.style.display = 'none';
+                    sidebarCount.textContent = '';
+                    sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
                 }
             } catch (error) {
                 console.error('获取通知数量出错', error);

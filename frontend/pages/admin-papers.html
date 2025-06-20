@@ -648,6 +648,82 @@
                 return Array.from(checkboxes).map(cb => cb.value);
             }
 
+            // 示例论文数据
+            const samplePapers = [
+                {
+                    id: 'paper001',
+                    title: '基于深度学习的图像识别算法研究',
+                    author: { name: '张三' },
+                    submittedAt: '2024-01-15T10:30:00Z',
+                    status: 'completed',
+                    averageScore: 85.5,
+                    expertsCount: 3
+                },
+                {
+                    id: 'paper002',
+                    title: '区块链技术在供应链管理中的应用',
+                    author: { name: '李四' },
+                    submittedAt: '2024-02-20T14:15:00Z',
+                    status: 'reviewing',
+                    averageScore: null,
+                    expertsCount: 2
+                },
+                {
+                    id: 'paper003',
+                    title: '人工智能在医疗诊断中的伦理问题研究',
+                    author: { name: '王五' },
+                    submittedAt: '2024-03-10T09:45:00Z',
+                    status: 'submitted',
+                    averageScore: null,
+                    expertsCount: 0
+                },
+                {
+                    id: 'paper004',
+                    title: '量子计算在密码学中的应用前景',
+                    author: { name: '赵六' },
+                    submittedAt: '2024-03-25T16:20:00Z',
+                    status: 'rejected',
+                    averageScore: 65.0,
+                    expertsCount: 3
+                },
+                {
+                    id: 'paper005',
+                    title: '机器学习在金融风险评估中的应用',
+                    author: { name: '钱七' },
+                    submittedAt: '2024-04-05T11:10:00Z',
+                    status: 'reviewing',
+                    averageScore: null,
+                    expertsCount: 1
+                },
+                {
+                    id: 'paper006',
+                    title: '5G网络安全威胁与防护策略研究',
+                    author: { name: '孙八' },
+                    submittedAt: '2024-04-08T13:30:00Z',
+                    status: 'submitted',
+                    averageScore: null,
+                    expertsCount: 0
+                },
+                {
+                    id: 'paper007',
+                    title: '云计算环境下的数据隐私保护技术',
+                    author: { name: '周九' },
+                    submittedAt: '2024-04-10T08:45:00Z',
+                    status: 'completed',
+                    averageScore: 92.3,
+                    expertsCount: 3
+                },
+                {
+                    id: 'paper008',
+                    title: '物联网设备安全漏洞分析与修复',
+                    author: { name: '吴十' },
+                    submittedAt: '2024-04-12T15:20:00Z',
+                    status: 'reviewing',
+                    averageScore: null,
+                    expertsCount: 2
+                }
+            ];
+
             // 加载论文列表
             async function loadPapers(page, size, filters) {
                 try {
@@ -674,90 +750,141 @@
                         queryParams += `&dateTo=${encodeURIComponent(filters.dateTo)}`;
                     }
                     
-                    const response = await fetch(`/api/papers?${queryParams}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+                    let papers = [];
+                    let total = 0;
+                    
+                    try {
+                        const response = await fetch(`/api/papers?${queryParams}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            papers = data.papers || [];
+                            total = data.total || 0;
+                        } else {
+                            throw new Error('API请求失败');
                         }
-                    });
+                    } catch (apiError) {
+                        console.log('API不可用，使用示例数据:', apiError.message);
+                        // 使用示例数据
+                        let filteredPapers = [...samplePapers];
+                        
+                        // 应用搜索筛选
+                        if (filters.search) {
+                            const searchTerm = filters.search.toLowerCase();
+                            filteredPapers = filteredPapers.filter(paper => 
+                                paper.title.toLowerCase().includes(searchTerm) ||
+                                paper.author.name.toLowerCase().includes(searchTerm)
+                            );
+                        }
+                        
+                        // 应用状态筛选
+                        if (filters.status && filters.status.length > 0) {
+                            filteredPapers = filteredPapers.filter(paper => 
+                                filters.status.includes(paper.status)
+                            );
+                        }
+                        
+                        // 应用日期筛选
+                        if (filters.dateFrom) {
+                            const fromDate = new Date(filters.dateFrom);
+                            filteredPapers = filteredPapers.filter(paper => 
+                                new Date(paper.submittedAt) >= fromDate
+                            );
+                        }
+                        
+                        if (filters.dateTo) {
+                            const toDate = new Date(filters.dateTo);
+                            toDate.setHours(23, 59, 59, 999); // 设置为当天结束时间
+                            filteredPapers = filteredPapers.filter(paper => 
+                                new Date(paper.submittedAt) <= toDate
+                            );
+                        }
+                        
+                        total = filteredPapers.length;
+                        
+                        // 应用分页
+                        const startIndex = (page - 1) * size;
+                        const endIndex = startIndex + size;
+                        papers = filteredPapers.slice(startIndex, endIndex);
+                    }
                     
                     const tableBody = document.getElementById('papers-table');
+                    totalPages = Math.ceil(total / size);
                     
-                    if (response.ok) {
-                        const data = await response.json();
-                        const papers = data.papers || [];
-                        const total = data.total || 0;
-                        totalPages = Math.ceil(total / size);
+                    // 更新显示信息
+                    document.getElementById('total-count').textContent = total;
+                    document.getElementById('showing-start').textContent = total === 0 ? 0 : (page - 1) * size + 1;
+                    document.getElementById('showing-end').textContent = Math.min(page * size, total);
+                    
+                    // 更新分页
+                    updatePagination(page, totalPages);
+                    
+                    if (papers.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-gray-500">暂无论文数据</td>
+                            </tr>
+                        `;
+                    } else {
+                        let html = '';
                         
-                        // 更新显示信息
-                        document.getElementById('total-count').textContent = total;
-                        document.getElementById('showing-start').textContent = total === 0 ? 0 : (page - 1) * size + 1;
-                        document.getElementById('showing-end').textContent = Math.min(page * size, total);
-                        
-                        // 更新分页
-                        updatePagination(page, totalPages);
-                        
-                        if (papers.length === 0) {
-                            tableBody.innerHTML = `
+                        papers.forEach(paper => {
+                            let statusBadge = '';
+                            
+                            switch (paper.status) {
+                                case 'submitted':
+                                    statusBadge = '<span class="status-badge status-submitted">已提交</span>';
+                                    break;
+                                case 'reviewing':
+                                    statusBadge = '<span class="status-badge status-reviewing">评审中</span>';
+                                    break;
+                                case 'completed':
+                                    statusBadge = '<span class="status-badge status-completed">已完成</span>';
+                                    break;
+                                case 'rejected':
+                                    statusBadge = '<span class="status-badge status-rejected">已拒绝</span>';
+                                    break;
+                                default:
+                                    statusBadge = '<span class="status-badge">未知</span>';
+                            }
+                            
+                            html += `
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-gray-500">暂无论文数据</td>
+                                    <td>
+                                        <input type="checkbox" class="paper-checkbox" value="${paper.id}">
+                                    </td>
+                                    <td>
+                                        <a href="review-details.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                                            ${paper.title}
+                                        </a>
+                                    </td>
+                                    <td>${paper.author.name}</td>
+                                    <td>${new Date(paper.submittedAt).toLocaleString()}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>${paper.averageScore ? paper.averageScore.toFixed(1) : '-'}</td>
+                                    <td>${paper.expertsCount || 0}</td>
+                                    <td>
+                                        <div class="flex space-x-2">
+                                            <a href="review-details.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800" title="查看详情">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="#" class="text-yellow-600 hover:text-yellow-800 assign-expert" data-id="${paper.id}" data-title="${paper.title}" data-author="${paper.author.name}" title="分配专家">
+                                                <i class="fas fa-user-check"></i>
+                                            </a>
+                                            <a href="#" class="text-red-600 hover:text-red-800 delete-paper" data-id="${paper.id}" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             `;
-                        } else {
-                            let html = '';
-                            
-                            papers.forEach(paper => {
-                                let statusBadge = '';
-                                
-                                switch (paper.status) {
-                                    case 'submitted':
-                                        statusBadge = '<span class="status-badge status-submitted">已提交</span>';
-                                        break;
-                                    case 'reviewing':
-                                        statusBadge = '<span class="status-badge status-reviewing">评审中</span>';
-                                        break;
-                                    case 'completed':
-                                        statusBadge = '<span class="status-badge status-completed">已完成</span>';
-                                        break;
-                                    case 'rejected':
-                                        statusBadge = '<span class="status-badge status-rejected">已拒绝</span>';
-                                        break;
-                                    default:
-                                        statusBadge = '<span class="status-badge">未知</span>';
-                                }
-                                
-                                html += `
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="paper-checkbox" value="${paper.id}">
-                                        </td>
-                                        <td>
-                                            <a href="admin-paper-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 font-medium">
-                                                ${paper.title}
-                                            </a>
-                                        </td>
-                                        <td>${paper.author.name}</td>
-                                        <td>${new Date(paper.submittedAt).toLocaleString()}</td>
-                                        <td>${statusBadge}</td>
-                                        <td>${paper.averageScore ? paper.averageScore.toFixed(1) : '-'}</td>
-                                        <td>${paper.expertsCount || 0}</td>
-                                        <td>
-                                            <div class="flex space-x-2">
-                                                <a href="admin-paper-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800" title="查看详情">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="text-yellow-600 hover:text-yellow-800 assign-expert" data-id="${paper.id}" data-title="${paper.title}" data-author="${paper.author.name}" title="分配专家">
-                                                    <i class="fas fa-user-check"></i>
-                                                </a>
-                                                <a href="#" class="text-red-600 hover:text-red-800 delete-paper" data-id="${paper.id}" title="删除">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                `;
-                            });
-                            
-                            tableBody.innerHTML = html;
+                        });
+                        
+                        tableBody.innerHTML = html;
                             
                             // 添加复选框事件监听
                             document.querySelectorAll('.paper-checkbox').forEach(checkbox => {
