@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员仪表盘 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        .stat-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-submitted {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-reviewing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-completed {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th {
+            background-color: #f9fafb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            color: #4b5563;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .admin-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+        .admin-table tr:hover {
+            background-color: #f9fafb;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .pagination-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            margin: 0 0.25rem;
+            border-radius: 0.375rem;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination-item:hover {
+            background-color: #f3f4f6;
+        }
+        .pagination-item.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .pagination-item.disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="admin-dashboard.html" class="sidebar-link active">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="admin-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 论文管理
+            </a>
+            <a href="admin-experts.html" class="sidebar-link">
+                <i class="fas fa-user-tie"></i> 专家管理
+            </a>
+            <a href="admin-users.html" class="sidebar-link">
+                <i class="fas fa-users"></i> 用户管理
+            </a>
+            <a href="admin-statistics.html" class="sidebar-link">
+                <i class="fas fa-chart-bar"></i> 统计分析
+            </a>
+            <a href="admin-settings.html" class="sidebar-link">
+                <i class="fas fa-cog"></i> 系统设置
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">管理员</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="admin-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">管理员仪表盘</h1>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-file-alt text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">总论文数</p>
+                            <h3 class="font-bold text-2xl" id="total-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-user-tie text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">专家数量</p>
+                            <h3 class="font-bold text-2xl" id="total-experts">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">用户数量</p>
+                            <h3 class="font-bold text-2xl" id="total-users">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">平均评分</p>
+                            <h3 class="font-bold text-2xl" id="average-score">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 论文状态统计 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 论文状态卡片 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">论文状态统计</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">已提交</span>
+                                <span class="text-sm font-medium text-gray-700" id="submitted-count">0</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" id="submitted-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">评审中</span>
+                                <span class="text-sm font-medium text-gray-700" id="reviewing-count">0</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-yellow-500 h-2.5 rounded-full" id="reviewing-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">已完成</span>
+                                <span class="text-sm font-medium text-gray-700" id="completed-count">0</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-500 h-2.5 rounded-full" id="completed-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">已拒绝</span>
+                                <span class="text-sm font-medium text-gray-700" id="rejected-count">0</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-red-500 h-2.5 rounded-full" id="rejected-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 专家评审统计 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">专家评审统计</h2>
+                    <div id="expert-review-chart" class="h-64">
+                        <!-- 图表将通过 JavaScript 动态加载 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近活动和待处理任务 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 最近活动 -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-800">最近活动</h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="recent-activities" class="space-y-4">
+                            <!-- 活动列表将通过 JavaScript 动态加载 -->
+                            <div id="loading-activities" class="text-center py-4">
+                                <i class="fas fa-spinner fa-spin text-indigo-600 text-xl"></i>
+                                <p class="mt-2 text-gray-600">加载中...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待处理任务 -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-800">待处理任务</h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="pending-tasks" class="space-y-4">
+                            <!-- 任务列表将通过 JavaScript 动态加载 -->
+                            <div id="loading-tasks" class="text-center py-4">
+                                <i class="fas fa-spinner fa-spin text-indigo-600 text-xl"></i>
+                                <p class="mt-2 text-gray-600">加载中...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近注册用户 -->
+            <div class="bg-white rounded-lg shadow mb-8">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800">最近注册用户</h2>
+                    <a href="admin-users.html" class="text-sm text-indigo-600 hover:text-indigo-800">查看全部</a>
+                </div>
+                <div class="p-6">
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>角色</th>
+                                    <th>注册时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-users-table">
+                                <!-- 用户列表将通过 JavaScript 动态加载 -->
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-spinner fa-spin text-indigo-600 mr-2"></i> 加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统状态 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">系统状态</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-medium text-gray-700">API 网关</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" id="api-gateway-status">正常</span>
+                            </div>
+                            <p class="text-xs text-gray-500">最后检查: <span id="api-gateway-time">刚刚</span></p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-medium text-gray-700">认证服务</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" id="auth-service-status">正常</span>
+                            </div>
+                            <p class="text-xs text-gray-500">最后检查: <span id="auth-service-time">刚刚</span></p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-medium text-gray-700">论文服务</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" id="paper-service-status">正常</span>
+                            </div>
+                            <p class="text-xs text-gray-500">最后检查: <span id="paper-service-time">刚刚</span></p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-medium text-gray-700">专家服务</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" id="expert-service-status">正常</span>
+                            </div>
+                            <p class="text-xs text-gray-500">最后检查: <span id="expert-service-time">刚刚</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js 图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'admin') {
+                // 未登录或不是管理员，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '管理员';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 加载统计数据
+            loadStatistics();
+            
+            // 加载最近活动
+            loadRecentActivities();
+            
+            // 加载待处理任务
+            loadPendingTasks();
+            
+            // 加载最近注册用户
+            loadRecentUsers();
+            
+            // 加载系统状态
+            loadSystemStatus();
+            
+            // 绘制专家评审图表
+            loadExpertReviewChart();
+        });
+        
+        // 加载统计数据
+        async function loadStatistics() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // 获取论文统计
+                const papersResponse = await fetch('/api/papers/statistics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (papersResponse.ok) {
+                    const papersData = await papersResponse.json();
+                    
+                    // 更新论文统计
+                    document.getElementById('total-papers').textContent = papersData.total || 0;
+                    document.getElementById('average-score').textContent = papersData.averageScore ? papersData.averageScore.toFixed(1) : '0';
+                    
+                    // 更新论文状态统计
+                    const submittedCount = papersData.statusCounts?.submitted || 0;
+                    const reviewingCount = papersData.statusCounts?.reviewing || 0;
+                    const completedCount = papersData.statusCounts?.completed || 0;
+                    const rejectedCount = papersData.statusCounts?.rejected || 0;
+                    const totalCount = submittedCount + reviewingCount + completedCount + rejectedCount;
+                    
+                    document.getElementById('submitted-count').textContent = submittedCount;
+                    document.getElementById('reviewing-count').textContent = reviewingCount;
+                    document.getElementById('completed-count').textContent = completedCount;
+                    document.getElementById('rejected-count').textContent = rejectedCount;
+                    
+                    // 计算百分比
+                    if (totalCount > 0) {
+                        document.getElementById('submitted-bar').style.width = `${(submittedCount / totalCount) * 100}%`;
+                        document.getElementById('reviewing-bar').style.width = `${(reviewingCount / totalCount) * 100}%`;
+                        document.getElementById('completed-bar').style.width = `${(completedCount / totalCount) * 100}%`;
+                        document.getElementById('rejected-bar').style.width = `${(rejectedCount / totalCount) * 100}%`;
+                    }
+                }
+                
+                // 获取专家统计
+                const expertsResponse = await fetch('/api/experts/statistics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (expertsResponse.ok) {
+                    const expertsData = await expertsResponse.json();
+                    document.getElementById('total-experts').textContent = expertsData.total || 0;
+                }
+                
+                // 获取用户统计
+                const usersResponse = await fetch('/api/auth/statistics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    document.getElementById('total-users').textContent = usersData.total || 0;
+                }
+            } catch (error) {
+                console.error('获取统计数据出错', error);
+            }
+        }
+        
+        // 加载最近活动
+        async function loadRecentActivities() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/admin/activities?limit=5', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const container = document.getElementById('recent-activities');
+                document.getElementById('loading-activities').style.display = 'none';
+                
+                if (response.ok) {
+                    const activities = await response.json();
+                    
+                    if (activities.length === 0) {
+                        container.innerHTML = `<p class="text-center text-gray-500">暂无活动记录</p>`;
+                    } else {
+                        let html = '';
+                        
+                        activities.forEach(activity => {
+                            let iconClass = '';
+                            
+                            switch (activity.type) {
+                                case 'user_registered':
+                                    iconClass = 'fas fa-user-plus text-blue-500';
+                                    break;
+                                case 'paper_submitted':
+                                    iconClass = 'fas fa-file-alt text-green-500';
+                                    break;
+                                case 'review_submitted':
+                                    iconClass = 'fas fa-star text-yellow-500';
+                                    break;
+                                case 'paper_assigned':
+                                    iconClass = 'fas fa-user-check text-purple-500';
+                                    break;
+                                default:
+                                    iconClass = 'fas fa-info-circle text-gray-500';
+                            }
+                            
+                            html += `
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <i class="${iconClass}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm">${activity.description}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(activity.timestamp))}</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    }
+                } else {
+                    container.innerHTML = `<p class="text-center text-gray-500">获取活动记录失败</p>`;
+                }
+            } catch (error) {
+                console.error('加载最近活动出错', error);
+                document.getElementById('loading-activities').style.display = 'none';
+                document.getElementById('recent-activities').innerHTML = `<p class="text-center text-gray-500">加载活动记录时出错</p>`;
+            }
+        }
+        
+        // 加载待处理任务
+        async function loadPendingTasks() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/admin/tasks?status=pending&limit=5', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const container = document.getElementById('pending-tasks');
+                document.getElementById('loading-tasks').style.display = 'none';
+                
+                if (response.ok) {
+                    const tasks = await response.json();
+                    
+                    if (tasks.length === 0) {
+                        container.innerHTML = `<p class="text-center text-gray-500">暂无待处理任务</p>`;
+                    } else {
+                        let html = '';
+                        
+                        tasks.forEach(task => {
+                            let priorityClass = '';
+                            let priorityText = '';
+                            
+                            switch (task.priority) {
+                                case 'high':
+                                    priorityClass = 'bg-red-100 text-red-800';
+                                    priorityText = '高';
+                                    break;
+                                case 'medium':
+                                    priorityClass = 'bg-yellow-100 text-yellow-800';
+                                    priorityText = '中';
+                                    break;
+                                case 'low':
+                                    priorityClass = 'bg-green-100 text-green-800';
+                                    priorityText = '低';
+                                    break;
+                                default:
+                                    priorityClass = 'bg-gray-100 text-gray-800';
+                                    priorityText = '普通';
+                            }
+                            
+                            html += `
+                                <div class="flex items-start justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-800">${task.title}</h3>
+                                        <p class="text-xs text-gray-500 mt-1">${task.description}</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${priorityClass} mr-2">${priorityText}</span>
+                                        <a href="${task.actionUrl}" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                            处理
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    }
+                } else {
+                    container.innerHTML = `<p class="text-center text-gray-500">获取任务失败</p>`;
+                }
+            } catch (error) {
+                console.error('加载待处理任务出错', error);
+                document.getElementById('loading-tasks').style.display = 'none';
+                document.getElementById('pending-tasks').innerHTML = `<p class="text-center text-gray-500">加载任务时出错</p>`;
+            }
+        }
+        
+        // 加载最近注册用户
+        async function loadRecentUsers() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/auth/users?limit=5&sort=created_at:desc', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const tableBody = document.getElementById('recent-users-table');
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    
+                    if (users.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-gray-500">暂无用户数据</td>
+                            </tr>
+                        `;
+                    } else {
+                        let html = '';
+                        
+                        users.forEach(user => {
+                            let roleText = '';
+                            let statusBadge = '';
+                            
+                            switch (user.role) {
+                                case 'admin':
+                                    roleText = '管理员';
+                                    break;
+                                case 'expert':
+                                    roleText = '专家';
+                                    break;
+                                case 'author':
+                                    roleText = '作者';
+                                    break;
+                                default:
+                                    roleText = '用户';
+                            }
+                            
+                            if (user.active) {
+                                statusBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">活跃</span>';
+                            } else {
+                                statusBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">未激活</span>';
+                            }
+                            
+                            html += `
+                                <tr>
+                                    <td>${user.username}</td>
+                                    <td>${roleText}</td>
+                                    <td>${new Date(user.createdAt).toLocaleString()}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>
+                                        <a href="admin-user-detail.html?id=${user.id}" class="text-indigo-600 hover:text-indigo-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="admin-user-edit.html?id=${user.id}" class="text-yellow-600 hover:text-yellow-800">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        tableBody.innerHTML = html;
+                    }
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-gray-500">获取用户数据失败</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载最近用户出错', error);
+                document.getElementById('recent-users-table').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-gray-500">加载用户数据时出错</td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // 加载系统状态
+        async function loadSystemStatus() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/admin/system/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const status = await response.json();
+                    
+                    // 更新服务状态
+                    updateServiceStatus('api-gateway', status.apiGateway);
+                    updateServiceStatus('auth-service', status.authService);
+                    updateServiceStatus('paper-service', status.paperService);
+                    updateServiceStatus('expert-service', status.expertService);
+                }
+            } catch (error) {
+                console.error('获取系统状态出错', error);
+                // 设置所有服务为未知状态
+                updateServiceStatus('api-gateway', { status: 'unknown' });
+                updateServiceStatus('auth-service', { status: 'unknown' });
+                updateServiceStatus('paper-service', { status: 'unknown' });
+                updateServiceStatus('expert-service', { status: 'unknown' });
+            }
+        }
+        
+        // 更新服务状态
+        function updateServiceStatus(serviceId, statusData) {
+            const statusElement = document.getElementById(`${serviceId}-status`);
+            const timeElement = document.getElementById(`${serviceId}-time`);
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            switch (statusData.status) {
+                case 'up':
+                    statusClass = 'bg-green-100 text-green-800';
+                    statusText = '正常';
+                    break;
+                case 'down':
+                    statusClass = 'bg-red-100 text-red-800';
+                    statusText = '故障';
+                    break;
+                case 'degraded':
+                    statusClass = 'bg-yellow-100 text-yellow-800';
+                    statusText = '性能下降';
+                    break;
+                default:
+                    statusClass = 'bg-gray-100 text-gray-800';
+                    statusText = '未知';
+            }
+            
+            statusElement.className = `px-2 py-1 text-xs font-semibold rounded-full ${statusClass}`;
+            statusElement.textContent = statusText;
+            
+            if (statusData.lastChecked) {
+                timeElement.textContent = formatTimeAgo(new Date(statusData.lastChecked));
+            } else {
+                timeElement.textContent = '未知';
+            }
+        }
+        
+        // 加载专家评审图表
+        async function loadExpertReviewChart() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/experts/review-statistics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    drawExpertReviewChart(data);
+                }
+            } catch (error) {
+                console.error('获取专家评审统计出错', error);
+                document.getElementById('expert-review-chart').innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <p class="text-gray-500">加载图表数据失败</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 绘制专家评审图表
+        function drawExpertReviewChart(data) {
+            const ctx = document.createElement('canvas');
+            document.getElementById('expert-review-chart').innerHTML = '';
+            document.getElementById('expert-review-chart').appendChild(ctx);
+            
+            // 准备数据
+            const labels = [];
+            const reviewCounts = [];
+            const completedCounts = [];
+            
+            // 获取前10位专家的数据
+            const topExperts = data.slice(0, 10);
+            
+            topExperts.forEach(expert => {
+                labels.push(expert.name);
+                reviewCounts.push(expert.totalAssigned);
+                completedCounts.push(expert.completed);
+            });
+            
+            // 创建图表
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '分配论文数',
+                            data: reviewCounts,
+                            backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '已完成评审',
+                            data: completedCounts,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 格式化时间
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return '刚刚';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths}个月前`;
+            }
+            
+            return `${Math.floor(diffInMonths / 12)}年前`;
+        }
+    </script>
+</body>
+</html>

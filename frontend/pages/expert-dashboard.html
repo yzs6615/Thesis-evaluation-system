@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专家仪表盘 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .paper-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        .paper-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-reviewing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-completed {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4f46e5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="expert-dashboard.html" class="sidebar-link active">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="expert-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 待评审论文
+            </a>
+            <a href="expert-completed.html" class="sidebar-link">
+                <i class="fas fa-check-circle"></i> 已评审论文
+            </a>
+            <a href="expert-notifications.html" class="sidebar-link">
+                <i class="fas fa-bell"></i> 通知
+                <span class="notification-count ml-auto" id="sidebar-notification-count"></span>
+            </a>
+            <a href="expert-profile.html" class="sidebar-link">
+                <i class="fas fa-user"></i> 个人资料
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 通知下拉菜单 -->
+                    <div class="relative mr-4">
+                        <button id="notification-btn" class="text-gray-600 focus:outline-none relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge"></span>
+                        </button>
+                        <div class="dropdown-menu" id="notification-menu">
+                            <div class="p-3 border-b border-gray-200">
+                                <h3 class="font-semibold">通知</h3>
+                            </div>
+                            <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                <!-- 通知内容将通过 JavaScript 动态加载 -->
+                                <div class="p-3 text-center text-gray-500" id="empty-notification">
+                                    暂无通知
+                                </div>
+                            </div>
+                            <div class="p-2 border-t border-gray-200 text-center">
+                                <a href="expert-notifications.html" class="text-indigo-600 text-sm hover:underline">查看全部</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">加载中...</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="expert-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">专家仪表盘</h1>
+                <div class="text-sm text-gray-600">
+                    <span id="expert-title">加载中...</span> | <span id="expert-institution">加载中...</span>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-file-alt text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">待评审论文</p>
+                            <h3 class="font-bold text-2xl" id="pending-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-spinner text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">评审中论文</p>
+                            <h3 class="font-bold text-2xl" id="reviewing-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">已完成评审</p>
+                            <h3 class="font-bold text-2xl" id="completed-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">评审完成率</p>
+                            <h3 class="font-bold text-2xl" id="completion-rate">0%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评审进度 -->
+            <div class="bg-white rounded-lg shadow mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">评审进度</h2>
+                </div>
+                <div class="p-6">
+                    <div class="mb-2 flex justify-between items-center">
+                        <span class="text-sm text-gray-600">已完成 <span id="progress-completed">0</span>/<span id="progress-total">0</span> 篇论文评审</span>
+                        <span class="text-sm font-medium text-indigo-600" id="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">专家需要评审 5-10 篇论文</p>
+                </div>
+            </div>
+
+            <!-- 待评审论文 -->
+            <div class="bg-white rounded-lg shadow mb-8">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800">待评审论文</h2>
+                    <a href="expert-papers.html" class="text-sm text-indigo-600 hover:text-indigo-800">查看全部</a>
+                </div>
+                <div class="p-6" id="pending-papers-container">
+                    <!-- 论文列表将通过 JavaScript 动态加载 -->
+                    <div id="loading-pending-papers" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+                        <p class="mt-2 text-gray-600">加载中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近评审的论文 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800">最近评审的论文</h2>
+                    <a href="expert-completed.html" class="text-sm text-indigo-600 hover:text-indigo-800">查看全部</a>
+                </div>
+                <div class="p-6" id="recent-reviews-container">
+                    <!-- 论文列表将通过 JavaScript 动态加载 -->
+                    <div id="loading-recent-reviews" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+                        <p class="mt-2 text-gray-600">加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'expert') {
+                // 未登录或不是专家，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '用户';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 通知菜单切换
+            const notificationBtn = document.getElementById('notification-btn');
+            const notificationMenu = document.getElementById('notification-menu');
+            
+            notificationBtn.addEventListener('click', function() {
+                notificationMenu.classList.toggle('show');
+                // 加载通知
+                loadNotifications();
+            });
+            
+            // 点击其他地方关闭通知菜单
+            document.addEventListener('click', function(event) {
+                if (!notificationBtn.contains(event.target) && !notificationMenu.contains(event.target)) {
+                    notificationMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 加载专家信息
+            loadExpertInfo();
+            
+            // 加载统计数据
+            loadStatistics();
+            
+            // 加载待评审论文
+            loadPendingPapers();
+            
+            // 加载最近评审的论文
+            loadRecentReviews();
+            
+            // 加载通知数量
+            loadNotificationCount();
+        });
+        
+        // 加载专家信息
+        async function loadExpertInfo() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // 使用假数据代替API调用
+                const expert = {
+                    id: user.expertId || 'exp001',
+                    title: '教授',
+                    institution: '北京大学计算机科学与技术学院',
+                    specialization: '人工智能与机器学习',
+                    email: 'expert@example.com'
+                };
+                
+                // 更新专家信息
+                document.getElementById('expert-title').textContent = expert.title || '专家';
+                document.getElementById('expert-institution').textContent = expert.institution || '未知机构';
+                
+                // 保存专家信息到本地存储
+                localStorage.setItem('expertInfo', JSON.stringify(expert));
+            } catch (error) {
+                console.error('获取专家信息出错', error);
+            }
+        }
+        
+        // 加载统计数据
+        async function loadStatistics() {
+            try {
+                // 使用假数据代替API调用
+                const data = {
+                    pending: 3,
+                    reviewing: 2,
+                    completed: 5
+                };
+                
+                // 更新统计卡片
+                const pendingCount = data.pending || 0;
+                const reviewingCount = data.reviewing || 0;
+                const completedCount = data.completed || 0;
+                const totalCount = pendingCount + reviewingCount + completedCount;
+                
+                document.getElementById('pending-papers').textContent = pendingCount;
+                document.getElementById('reviewing-papers').textContent = reviewingCount;
+                document.getElementById('completed-papers').textContent = completedCount;
+                
+                // 计算完成率
+                const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                document.getElementById('completion-rate').textContent = `${completionRate}%`;
+                
+                // 更新进度条
+                document.getElementById('progress-completed').textContent = completedCount;
+                document.getElementById('progress-total').textContent = totalCount;
+                document.getElementById('progress-percentage').textContent = `${completionRate}%`;
+                document.getElementById('progress-bar-fill').style.width = `${completionRate}%`;
+            } catch (error) {
+                console.error('获取统计数据出错', error);
+            }
+        }
+        
+        // 加载待评审论文
+        async function loadPendingPapers() {
+            try {
+                // 使用假数据代替API调用
+                const papers = [
+                    {
+                        id: 'paper001',
+                        title: '基于深度学习的自然语言处理研究进展',
+                        abstract: '本文综述了近年来基于深度学习的自然语言处理技术的研究进展，包括预训练语言模型、迁移学习、多模态融合等方向的最新成果，并探讨了这些技术在实际应用中的挑战和未来发展趋势。',
+                        authorName: '张三',
+                        assignedAt: new Date(2023, 9, 15).toISOString(),
+                        reviewStatus: 'pending'
+                    },
+                    {
+                        id: 'paper002',
+                        title: '量子计算在密码学中的应用研究',
+                        abstract: '本文探讨了量子计算技术对现有密码系统的潜在威胁，分析了后量子密码学的研究现状，并提出了一种新的抗量子计算攻击的密码方案，通过理论分析和实验验证证明了该方案的安全性和可行性。',
+                        authorName: '李四',
+                        assignedAt: new Date(2023, 9, 20).toISOString(),
+                        reviewStatus: 'pending'
+                    },
+                    {
+                        id: 'paper003',
+                        title: '区块链技术在供应链管理中的应用模型与实践',
+                        abstract: '本文提出了一种基于区块链技术的供应链管理新模型，解决了传统供应链中信息不透明、追溯困难等问题，并通过实际案例验证了该模型在提高供应链效率、降低成本和增强信任方面的优势。',
+                        authorName: '王五',
+                        assignedAt: new Date(2023, 9, 25).toISOString(),
+                        reviewStatus: 'reviewing'
+                    }
+                ];
+                
+                const container = document.getElementById('pending-papers-container');
+                document.getElementById('loading-pending-papers').style.display = 'none';
+                
+                if (papers.length === 0) {
+                    // 没有待评审论文
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>暂无待评审论文</h3>
+                            <p>您目前没有需要评审的论文。</p>
+                        </div>
+                    `;
+                } else {
+                    // 显示论文列表
+                    let html = '<div class="space-y-4">';
+                    
+                    papers.forEach(paper => {
+                        // 确定状态标签样式
+                        let statusClass = '';
+                        let statusText = '';
+                        
+                        switch (paper.reviewStatus) {
+                            case 'pending':
+                                statusClass = 'status-pending';
+                                statusText = '待评审';
+                                break;
+                            case 'reviewing':
+                                statusClass = 'status-reviewing';
+                                statusText = '评审中';
+                                break;
+                            case 'completed':
+                                statusClass = 'status-completed';
+                                statusText = '已完成';
+                                break;
+                            default:
+                                statusClass = 'status-pending';
+                                statusText = '待评审';
+                        }
+                        
+                        html += `
+                            <div class="paper-card">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                        <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> 分配时间: ${new Date(paper.assignedAt).toLocaleDateString()}</span>
+                                            <span><i class="fas fa-user mr-1"></i> 作者: ${paper.authorName || '未知'}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="status-badge ${statusClass}">${statusText}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                                    <a href="review-paper.html?id=${paper.id}" class="bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-4 rounded-md text-sm">
+                                        开始评审
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载待评审论文出错', error);
+                document.getElementById('loading-pending-papers').style.display = 'none';
+                document.getElementById('pending-papers-container').innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <p>加载论文时出错，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 加载最近评审的论文
+        async function loadRecentReviews() {
+            try {
+                // 使用假数据代替API调用
+                const papers = [
+                    {
+                        id: 'paper004',
+                        title: '人工智能在医疗诊断中的应用与伦理问题研究',
+                        abstract: '本文探讨了人工智能技术在医疗诊断领域的应用现状，分析了其在提高诊断准确率、减轻医生工作负担等方面的优势，同时深入讨论了AI医疗诊断系统在使用过程中可能面临的伦理问题和法律挑战。',
+                        authorName: '赵六',
+                        reviewedAt: new Date(2023, 8, 10).toISOString(),
+                        score: 92
+                    },
+                    {
+                        id: 'paper005',
+                        title: '基于边缘计算的物联网架构优化研究',
+                        abstract: '本文提出了一种新型的基于边缘计算的物联网系统架构，通过将计算任务从云端迁移到网络边缘，有效降低了系统响应延迟，提高了数据处理效率，并通过实验证明了该架构在各种物联网应用场景中的优越性。',
+                        authorName: '钱七',
+                        reviewedAt: new Date(2023, 8, 15).toISOString(),
+                        score: 88
+                    },
+                    {
+                        id: 'paper006',
+                        title: '数据隐私保护技术在社交网络中的应用研究',
+                        abstract: '本文研究了数据隐私保护技术在社交网络环境中的应用，提出了一种基于差分隐私的社交数据共享机制，在保护用户隐私的同时，保证了数据分析的有效性，为社交网络平台的隐私保护提供了新的技术方案。',
+                        authorName: '孙八',
+                        reviewedAt: new Date(2023, 8, 20).toISOString(),
+                        score: 85
+                    },
+                    {
+                        id: 'paper007',
+                        title: '智能交通系统中的大数据分析与预测模型',
+                        abstract: '本文基于大数据分析技术，构建了一种智能交通流量预测模型，通过对历史交通数据的挖掘和分析，实现了对城市交通流量的精准预测，为智能交通管理和出行规划提供了有力支持。',
+                        authorName: '周九',
+                        reviewedAt: new Date(2023, 8, 25).toISOString(),
+                        score: 90
+                    },
+                    {
+                        id: 'paper008',
+                        title: '云原生架构下的微服务安全防护策略',
+                        abstract: '本文分析了云原生架构下微服务面临的安全挑战，提出了一套完整的微服务安全防护策略，包括身份认证、访问控制、通信加密、漏洞扫描等多个维度，并通过实际案例验证了该策略的有效性。',
+                        authorName: '吴十',
+                        reviewedAt: new Date(2023, 8, 30).toISOString(),
+                        score: 87
+                    }
+                ];
+                
+                // 只显示前3篇已评审论文
+                const recentPapers = papers.slice(0, 3);
+                
+                const container = document.getElementById('recent-reviews-container');
+                document.getElementById('loading-recent-reviews').style.display = 'none';
+                
+                if (recentPapers.length === 0) {
+                    // 没有已评审论文
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>暂无已评审论文</h3>
+                            <p>您还没有完成任何论文的评审。</p>
+                        </div>
+                    `;
+                } else {
+                    // 显示论文列表
+                    let html = '<div class="space-y-4">';
+                    
+                    recentPapers.forEach(paper => {
+                        html += `
+                            <div class="paper-card">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                        <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> 评审时间: ${new Date(paper.reviewedAt).toLocaleDateString()}</span>
+                                            <span><i class="fas fa-user mr-1"></i> 作者: ${paper.authorName || '未知'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="status-badge status-completed">已评审</span>
+                                        <div class="mt-2 text-lg font-bold">${paper.score}<span class="text-sm text-gray-500">/100</span></div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                                    <a href="review-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                        查看评审详情 <i class="fas fa-chevron-right ml-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载已评审论文出错', error);
+                document.getElementById('loading-recent-reviews').style.display = 'none';
+                document.getElementById('recent-reviews-container').innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <p>加载论文时出错，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 加载通知
+        async function loadNotifications() {
+            try {
+                // 使用假数据代替API调用
+                const notifications = [
+                    {
+                        id: 'notif001',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《基于深度学习的自然语言处理研究进展》待评审',
+                        createdAt: new Date(2023, 9, 15).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif002',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《量子计算在密码学中的应用研究》待评审',
+                        createdAt: new Date(2023, 9, 20).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif003',
+                        type: 'review_reminder',
+                        message: '论文《区块链技术在供应链管理中的应用模型与实践》评审即将截止，请尽快完成',
+                        createdAt: new Date(2023, 9, 23).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif004',
+                        type: 'review_submitted',
+                        message: '您已成功提交《人工智能在医疗诊断中的应用与伦理问题研究》的评审',
+                        createdAt: new Date(2023, 8, 10).toISOString(),
+                        read: true
+                    },
+                    {
+                        id: 'notif005',
+                        type: 'review_completed',
+                        message: '您的评审工作受到了系统的高度评价，感谢您的专业贡献！',
+                        createdAt: new Date(2023, 8, 30).toISOString(),
+                        read: false
+                    }
+                ];
+                
+                // 只显示未读通知
+                const unreadNotifications = notifications.filter(n => !n.read);
+                
+                const notificationList = document.getElementById('notification-list');
+                const emptyNotification = document.getElementById('empty-notification');
+                
+                if (unreadNotifications.length === 0) {
+                    emptyNotification.style.display = 'block';
+                } else {
+                    emptyNotification.style.display = 'none';
+                    
+                    let html = '';
+                    unreadNotifications.forEach(notification => {
+                        html += `
+                            <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm">${notification.message}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    notificationList.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载通知出错', error);
+                document.getElementById('empty-notification').textContent = '加载通知出错';
+                document.getElementById('empty-notification').style.display = 'block';
+            }
+        }
+        
+        // 加载通知数量
+        async function loadNotificationCount() {
+            try {
+                // 使用假数据代替API调用
+                const count = 4; // 未读通知数量
+                
+                // 更新通知徽章
+                const badge = document.getElementById('notification-badge');
+                const sidebarCount = document.getElementById('sidebar-notification-count');
+                
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                    
+                    sidebarCount.textContent = count > 99 ? '99+' : count;
+                    sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                } else {
+                    badge.style.display = 'none';
+                    sidebarCount.textContent = '';
+                    sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                }
+            } catch (error) {
+                console.error('获取通知数量出错', error);
+            }
+        }
+        
+        // 获取通知图标
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'paper_assigned': return 'file-alt';
+                case 'review_reminder': return 'clock';
+                case 'review_submitted': return 'check-circle';
+                case 'review_completed': return 'star';
+                default: return 'bell';
+            }
+        }
+        
+        // 获取通知颜色
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'paper_assigned': return 'blue';
+                case 'review_reminder': return 'yellow';
+                case 'review_submitted': return 'green';
+                case 'review_completed': return 'purple';
+                default: return 'gray';
+            }
+        }
+        
+        // 格式化时间
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return '刚刚';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths}个月前`;
+            }
+            
+            return `${Math.floor(diffInMonths / 12)}年前`;
+        }
+    </script>
+</body>
+</html>

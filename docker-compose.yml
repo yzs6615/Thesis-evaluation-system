@@ -1,0 +1,215 @@
+version: '3.8'
+
+services:
+  # 前端服务
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - thesis-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # API网关
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - paper-service
+      - expert-service
+      - score-service
+      - notification-service
+    networks:
+      - thesis-network
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:5003
+      - PAPER_SERVICE_URL=http://paper-service:5000
+      - EXPERT_SERVICE_URL=http://expert-service:5001
+      - SCORE_SERVICE_URL=http://score-service:5002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5004
+
+  # 认证服务
+  auth-service:
+    build: ./backend/auth-service
+    ports:
+      - "5003:5003"
+    depends_on:
+      - auth-db
+    networks:
+      - thesis-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@auth-db:5432/auth_db
+      - SECRET_KEY=your_secret_key_here
+
+  # 论文服务
+  paper-service:
+    build: ./backend/paper-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - paper-db
+      - rabbitmq
+    networks:
+      - thesis-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@paper-db:5432/paper_db
+      - EXPERT_SERVICE_URL=http://expert-service:5001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5004
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+
+  # 专家服务
+  expert-service:
+    build: ./backend/expert-service
+    ports:
+      - "5001:5001"
+    depends_on:
+      - expert-db
+    networks:
+      - thesis-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@expert-db:5432/expert_db
+      - AUTH_SERVICE_URL=http://auth-service:5003
+      - PAPER_SERVICE_URL=http://paper-service:5000
+
+  # 评分服务
+  score-service:
+    build: ./backend/score-service
+    ports:
+      - "5002:5002"
+    depends_on:
+      - score-db
+      - rabbitmq
+    networks:
+      - thesis-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@score-db:5432/score_db
+      - PAPER_SERVICE_URL=http://paper-service:5000
+      - EXPERT_SERVICE_URL=http://expert-service:5001
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+
+  # 通知服务
+  notification-service:
+    build: ./backend/notification-service
+    ports:
+      - "5004:5004"
+    depends_on:
+      - notification-db
+      - rabbitmq
+    networks:
+      - thesis-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@notification-db:5432/notification_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - EMAIL_HOST=smtp.example.com
+      - EMAIL_PORT=587
+      - EMAIL_USER=your_email@example.com
+      - EMAIL_PASSWORD=your_email_password
+
+  # 数据库服务
+  auth-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth_db
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - thesis-network
+
+  paper-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=paper_db
+    volumes:
+      - paper-db-data:/var/lib/postgresql/data
+    networks:
+      - thesis-network
+
+  expert-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=expert_db
+    volumes:
+      - expert-db-data:/var/lib/postgresql/data
+    networks:
+      - thesis-network
+
+  score-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=score_db
+    volumes:
+      - score-db-data:/var/lib/postgresql/data
+    networks:
+      - thesis-network
+
+  notification-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=notification_db
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    networks:
+      - thesis-network
+
+  # 消息队列
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # AMQP 协议端口
+      - "15672:15672"  # 管理界面端口
+    networks:
+      - thesis-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  # 监控服务
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - thesis-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - thesis-network
+
+networks:
+  thesis-network:
+    driver: bridge
+
+volumes:
+  auth-db-data:
+  paper-db-data:
+  expert-db-data:
+  score-db-data:
+  notification-db-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:

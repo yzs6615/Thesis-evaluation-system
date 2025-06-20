@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文评审 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .paper-section {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .review-section {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .rating-stars {
+            display: flex;
+            align-items: center;
+        }
+        .rating-stars i {
+            color: #d1d5db;
+            font-size: 1.5rem;
+            margin-right: 0.25rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .rating-stars i.active {
+            color: #fbbf24;
+        }
+        .rating-stars i:hover {
+            color: #f59e0b;
+        }
+        .criteria-item {
+            margin-bottom: 1.5rem;
+        }
+        .criteria-item:last-child {
+            margin-bottom: 0;
+        }
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .criteria-title {
+            font-weight: 600;
+            color: #374151;
+        }
+        .criteria-score {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+        .criteria-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        .score-slider {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .score-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .file-download {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #f3f4f6;
+            border-radius: 0.375rem;
+            color: #4b5563;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .file-download:hover {
+            background-color: #e5e7eb;
+        }
+        .file-download i {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="expert-dashboard.html" class="sidebar-link">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="expert-papers.html" class="sidebar-link active">
+                <i class="fas fa-file-alt"></i> 待评审论文
+            </a>
+            <a href="expert-completed.html" class="sidebar-link">
+                <i class="fas fa-check-circle"></i> 已评审论文
+            </a>
+            <a href="expert-notifications.html" class="sidebar-link">
+                <i class="fas fa-bell"></i> 通知
+                <span class="notification-count ml-auto" id="sidebar-notification-count"></span>
+            </a>
+            <a href="expert-profile.html" class="sidebar-link">
+                <i class="fas fa-user"></i> 个人资料
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 通知下拉菜单 -->
+                    <div class="relative mr-4">
+                        <button id="notification-btn" class="text-gray-600 focus:outline-none relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge"></span>
+                        </button>
+                        <div class="dropdown-menu" id="notification-menu">
+                            <div class="p-3 border-b border-gray-200">
+                                <h3 class="font-semibold">通知</h3>
+                            </div>
+                            <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                <!-- 通知内容将通过 JavaScript 动态加载 -->
+                                <div class="p-3 text-center text-gray-500" id="empty-notification">
+                                    暂无通知
+                                </div>
+                            </div>
+                            <div class="p-2 border-t border-gray-200 text-center">
+                                <a href="expert-notifications.html" class="text-indigo-600 text-sm hover:underline">查看全部</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">加载中...</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="expert-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <!-- 返回按钮 -->
+            <div class="mb-6">
+                <a href="expert-papers.html" class="inline-flex items-center text-indigo-600 hover:text-indigo-800">
+                    <i class="fas fa-arrow-left mr-2"></i> 返回待评审论文列表
+                </a>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="loading-paper" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+                <p class="mt-2 text-gray-600">加载论文信息中...</p>
+            </div>
+            
+            <!-- 论文信息 -->
+            <div id="paper-info" class="paper-section" style="display: none;">
+                <div class="flex justify-between items-start mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800" id="paper-title">论文标题</h1>
+                    <div id="paper-status" class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        待评审
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500">作者</p>
+                        <p class="font-medium" id="paper-author">作者姓名</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">提交时间</p>
+                        <p class="font-medium" id="paper-submit-time">2023-10-15</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">分配时间</p>
+                        <p class="font-medium" id="paper-assign-time">2023-10-20</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">截止时间</p>
+                        <p class="font-medium" id="paper-deadline">2023-11-20</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">摘要</h2>
+                    <p class="text-gray-700" id="paper-abstract">论文摘要内容...</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">关键词</h2>
+                    <div class="flex flex-wrap" id="paper-keywords">
+                        <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded">关键词1</span>
+                        <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded">关键词2</span>
+                        <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded">关键词3</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">附件</h2>
+                    <div id="paper-attachments">
+                        <a href="#" class="file-download">
+                            <i class="fas fa-file-pdf"></i> 论文全文.pdf
+                        </a>
+                        <a href="#" class="file-download">
+                            <i class="fas fa-file-alt"></i> 补充材料.docx
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 评审表单 -->
+            <div id="review-form" class="review-section" style="display: none;">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">评审表单</h2>
+                
+                <form id="paper-review-form">
+                    <!-- 总体评分 -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">总体评分</label>
+                        <div class="rating-stars mb-2" id="overall-rating">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                            <span class="ml-2 text-gray-500" id="rating-text">未评分</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 评分标准 -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">评分标准</h3>
+                        
+                        <!-- 创新性 -->
+                        <div class="criteria-item">
+                            <div class="criteria-header">
+                                <span class="criteria-title">创新性</span>
+                                <span class="criteria-score" id="innovation-score">0</span>
+                            </div>
+                            <p class="criteria-description">评估论文的创新点、原创性和对领域的贡献</p>
+                            <input type="range" min="0" max="10" value="0" class="score-slider" id="innovation-slider">
+                            <div class="score-labels">
+                                <span>0</span>
+                                <span>2</span>
+                                <span>4</span>
+                                <span>6</span>
+                                <span>8</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 科学性 -->
+                        <div class="criteria-item">
+                            <div class="criteria-header">
+                                <span class="criteria-title">科学性</span>
+                                <span class="criteria-score" id="scientific-score">0</span>
+                            </div>
+                            <p class="criteria-description">评估研究方法的科学性、严谨性和可靠性</p>
+                            <input type="range" min="0" max="10" value="0" class="score-slider" id="scientific-slider">
+                            <div class="score-labels">
+                                <span>0</span>
+                                <span>2</span>
+                                <span>4</span>
+                                <span>6</span>
+                                <span>8</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 实用性 -->
+                        <div class="criteria-item">
+                            <div class="criteria-header">
+                                <span class="criteria-title">实用性</span>
+                                <span class="criteria-score" id="practical-score">0</span>
+                            </div>
+                            <p class="criteria-description">评估研究成果的实际应用价值和潜在影响</p>
+                            <input type="range" min="0" max="10" value="0" class="score-slider" id="practical-slider">
+                            <div class="score-labels">
+                                <span>0</span>
+                                <span>2</span>
+                                <span>4</span>
+                                <span>6</span>
+                                <span>8</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 写作质量 -->
+                        <div class="criteria-item">
+                            <div class="criteria-header">
+                                <span class="criteria-title">写作质量</span>
+                                <span class="criteria-score" id="writing-score">0</span>
+                            </div>
+                            <p class="criteria-description">评估论文的结构、语言表达和格式规范性</p>
+                            <input type="range" min="0" max="10" value="0" class="score-slider" id="writing-slider">
+                            <div class="score-labels">
+                                <span>0</span>
+                                <span>2</span>
+                                <span>4</span>
+                                <span>6</span>
+                                <span>8</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 评审意见 -->
+                    <div class="mb-6">
+                        <label for="review-comments" class="block text-gray-700 font-medium mb-2">评审意见</label>
+                        <textarea id="review-comments" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="请输入您对论文的详细评审意见，包括优点、缺点和改进建议..."></textarea>
+                    </div>
+                    
+                    <!-- 保密性声明 -->
+                    <div class="mb-6">
+                        <label class="flex items-start">
+                            <input type="checkbox" id="confidentiality" class="mt-1 mr-2">
+                            <span class="text-sm text-gray-600">我确认已遵守评审保密原则，不会向第三方透露论文内容和评审过程。</span>
+                        </label>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="save-draft" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                            保存草稿
+                        </button>
+                        <button type="submit" id="submit-review" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors" disabled>
+                            提交评审
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'expert') {
+                // 未登录或不是专家，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '用户';
+            
+            // 获取论文ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const paperId = urlParams.get('id');
+            
+            if (!paperId) {
+                // 没有论文ID，重定向到论文列表页
+                window.location.href = 'expert-papers.html';
+                return;
+            }
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 通知菜单切换
+            const notificationBtn = document.getElementById('notification-btn');
+            const notificationMenu = document.getElementById('notification-menu');
+            
+            notificationBtn.addEventListener('click', function() {
+                notificationMenu.classList.toggle('show');
+                // 加载通知
+                loadNotifications();
+            });
+            
+            // 点击其他地方关闭通知菜单
+            document.addEventListener('click', function(event) {
+                if (!notificationBtn.contains(event.target) && !notificationMenu.contains(event.target)) {
+                    notificationMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 加载论文信息
+            loadPaperInfo(paperId);
+            
+            // 加载通知数量
+            loadNotificationCount();
+            
+            // 设置星级评分交互
+            setupRatingStars();
+            
+            // 设置评分滑块交互
+            setupScoreSliders();
+            
+            // 表单提交
+            document.getElementById('paper-review-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitReview(paperId);
+            });
+            
+            // 保存草稿
+            document.getElementById('save-draft').addEventListener('click', function() {
+                saveDraft(paperId);
+            });
+            
+            // 保密性复选框变更
+            document.getElementById('confidentiality').addEventListener('change', function() {
+                validateForm();
+            });
+        });
+        
+        // 加载论文信息
+        async function loadPaperInfo(paperId) {
+            try {
+                document.getElementById('loading-paper').style.display = 'block';
+                document.getElementById('paper-info').style.display = 'none';
+                document.getElementById('review-form').style.display = 'none';
+                
+                // 使用假数据代替API调用
+                let paperData;
+                
+                // 根据论文ID获取对应的论文数据
+                switch (paperId) {
+                    case 'paper001':
+                        paperData = {
+                            id: 'paper001',
+                            title: '基于深度学习的自然语言处理研究进展',
+                            abstract: '本文综述了近年来基于深度学习的自然语言处理技术的研究进展，包括预训练语言模型、迁移学习、多模态融合等方向的最新成果，并探讨了这些技术在实际应用中的挑战和未来发展趋势。',
+                            authorName: '张三',
+                            keywords: ['深度学习', '自然语言处理', '预训练语言模型', '迁移学习'],
+                            submittedAt: new Date(2023, 9, 10).toISOString(),
+                            assignedAt: new Date(2023, 9, 15).toISOString(),
+                            deadline: new Date(2023, 10, 15).toISOString(),
+                            reviewStatus: 'pending',
+                            attachments: [
+                                { name: '论文全文.pdf', type: 'pdf' },
+                                { name: '代码和数据.zip', type: 'zip' }
+                            ]
+                        };
+                        break;
+                    case 'paper002':
+                        paperData = {
+                            id: 'paper002',
+                            title: '量子计算在密码学中的应用研究',
+                            abstract: '本文探讨了量子计算技术对现有密码系统的潜在威胁，分析了后量子密码学的研究现状，并提出了一种新的抗量子计算攻击的密码方案，通过理论分析和实验验证证明了该方案的安全性和可行性。',
+                            authorName: '李四',
+                            keywords: ['量子计算', '密码学', '后量子密码', '安全性分析'],
+                            submittedAt: new Date(2023, 9, 15).toISOString(),
+                            assignedAt: new Date(2023, 9, 20).toISOString(),
+                            deadline: new Date(2023, 10, 20).toISOString(),
+                            reviewStatus: 'pending',
+                            attachments: [
+                                { name: '论文全文.pdf', type: 'pdf' },
+                                { name: '安全性证明.pdf', type: 'pdf' }
+                            ]
+                        };
+                        break;
+                    case 'paper003':
+                        paperData = {
+                            id: 'paper003',
+                            title: '区块链技术在供应链管理中的应用模型与实践',
+                            abstract: '本文提出了一种基于区块链技术的供应链管理新模型，解决了传统供应链中信息不透明、追溯困难等问题，并通过实际案例验证了该模型在提高供应链效率、降低成本和增强信任方面的优势。',
+                            authorName: '王五',
+                            keywords: ['区块链', '供应链管理', '信息透明', '追溯系统'],
+                            submittedAt: new Date(2023, 9, 20).toISOString(),
+                            assignedAt: new Date(2023, 9, 25).toISOString(),
+                            deadline: new Date(2023, 10, 25).toISOString(),
+                            reviewStatus: 'reviewing',
+                            attachments: [
+                                { name: '论文全文.pdf', type: 'pdf' },
+                                { name: '案例数据.xlsx', type: 'excel' },
+                                { name: '系统架构图.png', type: 'image' }
+                            ],
+                            // 草稿数据
+                            draft: {
+                                overallRating: 4,
+                                innovationScore: 8,
+                                scientificScore: 7,
+                                practicalScore: 9,
+                                writingScore: 6,
+                                comments: '这篇论文在区块链应用于供应链管理方面提出了一些创新性的观点，特别是在解决信息透明和追溯问题上有很好的思路。实用性很强，案例分析充分。但在科学性论证和写作规范方面还有提升空间。'
+                            }
+                        };
+                        break;
+                    case 'paper009':
+                        paperData = {
+                            id: 'paper009',
+                            title: '边缘计算在物联网安全中的应用研究',
+                            abstract: '本文研究了边缘计算技术在物联网安全防护中的应用，提出了一种基于边缘计算的分布式安全架构，有效解决了传统集中式安全模型在物联网环境下面临的实时性差、带宽消耗大等问题。',
+                            authorName: '刘一',
+                            keywords: ['边缘计算', '物联网', '网络安全', '分布式架构'],
+                            submittedAt: new Date(2023, 10, 1).toISOString(),
+                            assignedAt: new Date(2023, 10, 5).toISOString(),
+                            deadline: new Date(2023, 11, 5).toISOString(),
+                            reviewStatus: 'pending',
+                            attachments: [
+                                { name: '论文全文.pdf', type: 'pdf' },
+                                { name: '实验数据.xlsx', type: 'excel' }
+                            ]
+                        };
+                        break;
+                    case 'paper010':
+                        paperData = {
+                            id: 'paper010',
+                            title: '深度强化学习在自动驾驶决策系统中的应用',
+                            abstract: '本文探索了深度强化学习技术在自动驾驶决策系统中的应用，提出了一种新型的多智能体强化学习框架，能够有效处理复杂交通场景下的决策问题，并通过仿真实验验证了该方法的有效性。',
+                            authorName: '陈二',
+                            keywords: ['深度强化学习', '自动驾驶', '决策系统', '多智能体'],
+                            submittedAt: new Date(2023, 10, 5).toISOString(),
+                            assignedAt: new Date(2023, 10, 10).toISOString(),
+                            deadline: new Date(2023, 11, 10).toISOString(),
+                            reviewStatus: 'reviewing',
+                            attachments: [
+                                { name: '论文全文.pdf', type: 'pdf' },
+                                { name: '算法代码.zip', type: 'zip' },
+                                { name: '仿真视频.mp4', type: 'video' }
+                            ],
+                            // 草稿数据
+                            draft: {
+                                overallRating: 3,
+                                innovationScore: 6,
+                                scientificScore: 7,
+                                practicalScore: 5,
+                                writingScore: 6,
+                                comments: '论文在自动驾驶决策系统中应用深度强化学习的思路有一定创新性，但与现有研究相比优势不够明显。实验设计合理，但实际应用价值有待进一步验证。建议增加与其他方法的对比实验，并深入分析算法在复杂场景下的鲁棒性。'
+                            }
+                        };
+                        break;
+                    default:
+                        // 默认论文数据
+                        paperData = {
+                            id: paperId,
+                            title: '未知论文',
+                            abstract: '无法获取论文信息',
+                            authorName: '未知',
+                            keywords: [],
+                            submittedAt: new Date().toISOString(),
+                            assignedAt: new Date().toISOString(),
+                            deadline: new Date().toISOString(),
+                            reviewStatus: 'pending',
+                            attachments: []
+                        };
+                }
+                
+                // 更新页面显示
+                document.getElementById('paper-title').textContent = paperData.title;
+                document.getElementById('paper-author').textContent = paperData.authorName;
+                document.getElementById('paper-submit-time').textContent = new Date(paperData.submittedAt).toLocaleDateString();
+                document.getElementById('paper-assign-time').textContent = new Date(paperData.assignedAt).toLocaleDateString();
+                document.getElementById('paper-deadline').textContent = new Date(paperData.deadline).toLocaleDateString();
+                document.getElementById('paper-abstract').textContent = paperData.abstract;
+                
+                // 设置论文状态
+                const statusElement = document.getElementById('paper-status');
+                switch (paperData.reviewStatus) {
+                    case 'pending':
+                        statusElement.textContent = '待评审';
+                        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800';
+                        break;
+                    case 'reviewing':
+                        statusElement.textContent = '评审中';
+                        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'completed':
+                        statusElement.textContent = '已完成';
+                        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800';
+                        break;
+                    default:
+                        statusElement.textContent = '未知状态';
+                        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800';
+                }
+                
+                // 设置关键词
+                const keywordsContainer = document.getElementById('paper-keywords');
+                keywordsContainer.innerHTML = '';
+                
+                if (paperData.keywords && paperData.keywords.length > 0) {
+                    paperData.keywords.forEach(keyword => {
+                        const keywordElement = document.createElement('span');
+                        keywordElement.className = 'bg-gray-100 text-gray-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded';
+                        keywordElement.textContent = keyword;
+                        keywordsContainer.appendChild(keywordElement);
+                    });
+                } else {
+                    const noKeywords = document.createElement('span');
+                    noKeywords.className = 'text-gray-500 text-sm';
+                    noKeywords.textContent = '无关键词';
+                    keywordsContainer.appendChild(noKeywords);
+                }
+                
+                // 设置附件
+                const attachmentsContainer = document.getElementById('paper-attachments');
+                attachmentsContainer.innerHTML = '';
+                
+                if (paperData.attachments && paperData.attachments.length > 0) {
+                    paperData.attachments.forEach(attachment => {
+                        const attachmentElement = document.createElement('a');
+                        attachmentElement.href = '#';
+                        attachmentElement.className = 'file-download';
+                        
+                        // 根据文件类型设置图标
+                        let iconClass = 'fas fa-file';
+                        switch (attachment.type) {
+                            case 'pdf':
+                                iconClass = 'fas fa-file-pdf';
+                                break;
+                            case 'word':
+                            case 'doc':
+                            case 'docx':
+                                iconClass = 'fas fa-file-word';
+                                break;
+                            case 'excel':
+                            case 'xls':
+                            case 'xlsx':
+                                iconClass = 'fas fa-file-excel';
+                                break;
+                            case 'image':
+                            case 'png':
+                            case 'jpg':
+                            case 'jpeg':
+                                iconClass = 'fas fa-file-image';
+                                break;
+                            case 'video':
+                            case 'mp4':
+                                iconClass = 'fas fa-file-video';
+                                break;
+                            case 'zip':
+                            case 'rar':
+                                iconClass = 'fas fa-file-archive';
+                                break;
+                        }
+                        
+                        attachmentElement.innerHTML = `<i class="${iconClass}"></i> ${attachment.name}`;
+                        
+                        // 添加点击事件（模拟下载）
+                        attachmentElement.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            alert(`模拟下载文件：${attachment.name}`);
+                        });
+                        
+                        attachmentsContainer.appendChild(attachmentElement);
+                    });
+                } else {
+                    const noAttachments = document.createElement('p');
+                    noAttachments.className = 'text-gray-500 text-sm';
+                    noAttachments.textContent = '无附件';
+                    attachmentsContainer.appendChild(noAttachments);
+                }
+                
+                // 如果有草稿数据，加载草稿
+                if (paperData.draft) {
+                    loadDraft(paperData.draft);
+                }
+                
+                // 显示论文信息和评审表单
+                document.getElementById('loading-paper').style.display = 'none';
+                document.getElementById('paper-info').style.display = 'block';
+                document.getElementById('review-form').style.display = 'block';
+                
+            } catch (error) {
+                console.error('加载论文信息出错', error);
+                document.getElementById('loading-paper').style.display = 'none';
+                alert('加载论文信息出错，请稍后重试');
+            }
+        }
+        
+        // 设置星级评分交互
+        function setupRatingStars() {
+            const stars = document.querySelectorAll('#overall-rating i');
+            const ratingText = document.getElementById('rating-text');
+            
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    updateStars(rating, true);
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    const activeRating = document.querySelector('#overall-rating i.active');
+                    const rating = activeRating ? parseInt(activeRating.getAttribute('data-rating')) : 0;
+                    updateStars(rating, false);
+                });
+                
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    updateStars(rating, false, true);
+                    validateForm();
+                });
+            });
+            
+            function updateStars(rating, hover = false, click = false) {
+                stars.forEach(s => {
+                    const starRating = parseInt(s.getAttribute('data-rating'));
+                    
+                    if (starRating <= rating) {
+                        s.className = hover ? 'fas fa-star text-yellow-400' : 'fas fa-star';
+                        if (click) s.classList.add('active');
+                    } else {
+                        s.className = 'far fa-star';
+                        if (click) s.classList.remove('active');
+                    }
+                });
+                
+                // 更新评分文本
+                if (rating > 0) {
+                    const ratingTexts = ['', '很差', '较差', '一般', '良好', '优秀'];
+                    ratingText.textContent = ratingTexts[rating];
+                } else {
+                    ratingText.textContent = '未评分';
+                }
+            }
+        }
+        
+        // 设置评分滑块交互
+        function setupScoreSliders() {
+            const sliders = [
+                { slider: document.getElementById('innovation-slider'), score: document.getElementById('innovation-score') },
+                { slider: document.getElementById('scientific-slider'), score: document.getElementById('scientific-score') },
+                { slider: document.getElementById('practical-slider'), score: document.getElementById('practical-score') },
+                { slider: document.getElementById('writing-slider'), score: document.getElementById('writing-score') }
+            ];
+            
+            sliders.forEach(item => {
+                item.slider.addEventListener('input', function() {
+                    item.score.textContent = this.value;
+                    validateForm();
+                });
+            });
+        }
+        
+        // 加载草稿数据
+        function loadDraft(draft) {
+            // 设置总体评分
+            if (draft.overallRating) {
+                const stars = document.querySelectorAll('#overall-rating i');
+                const ratingText = document.getElementById('rating-text');
+                const ratingTexts = ['', '很差', '较差', '一般', '良好', '优秀'];
+                
+                stars.forEach(star => {
+                    const starRating = parseInt(star.getAttribute('data-rating'));
+                    if (starRating <= draft.overallRating) {
+                        star.className = 'fas fa-star active';
+                    } else {
+                        star.className = 'far fa-star';
+                    }
+                });
+                
+                ratingText.textContent = ratingTexts[draft.overallRating];
+            }
+            
+            // 设置各项评分
+            if (draft.innovationScore !== undefined) {
+                document.getElementById('innovation-slider').value = draft.innovationScore;
+                document.getElementById('innovation-score').textContent = draft.innovationScore;
+            }
+            
+            if (draft.scientificScore !== undefined) {
+                document.getElementById('scientific-slider').value = draft.scientificScore;
+                document.getElementById('scientific-score').textContent = draft.scientificScore;
+            }
+            
+            if (draft.practicalScore !== undefined) {
+                document.getElementById('practical-slider').value = draft.practicalScore;
+                document.getElementById('practical-score').textContent = draft.practicalScore;
+            }
+            
+            if (draft.writingScore !== undefined) {
+                document.getElementById('writing-slider').value = draft.writingScore;
+                document.getElementById('writing-score').textContent = draft.writingScore;
+            }
+            
+            // 设置评审意见
+            if (draft.comments) {
+                document.getElementById('review-comments').value = draft.comments;
+            }
+            
+            // 验证表单
+            validateForm();
+        }
+        
+        // 验证表单
+        function validateForm() {
+            const overallRating = document.querySelector('#overall-rating i.active');
+            const innovationScore = parseInt(document.getElementById('innovation-slider').value);
+            const scientificScore = parseInt(document.getElementById('scientific-slider').value);
+            const practicalScore = parseInt(document.getElementById('practical-slider').value);
+            const writingScore = parseInt(document.getElementById('writing-slider').value);
+            const comments = document.getElementById('review-comments').value.trim();
+            const confidentiality = document.getElementById('confidentiality').checked;
+            
+            const submitButton = document.getElementById('submit-review');
+            
+            // 检查所有必填项
+            if (overallRating && innovationScore > 0 && scientificScore > 0 && practicalScore > 0 && writingScore > 0 && comments.length > 0 && confidentiality) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+        
+        // 保存草稿
+        function saveDraft(paperId) {
+            try {
+                const overallRating = document.querySelector('#overall-rating i.active');
+                const rating = overallRating ? parseInt(overallRating.getAttribute('data-rating')) : 0;
+                
+                const draft = {
+                    paperId: paperId,
+                    overallRating: rating,
+                    innovationScore: parseInt(document.getElementById('innovation-slider').value),
+                    scientificScore: parseInt(document.getElementById('scientific-slider').value),
+                    practicalScore: parseInt(document.getElementById('practical-slider').value),
+                    writingScore: parseInt(document.getElementById('writing-slider').value),
+                    comments: document.getElementById('review-comments').value.trim()
+                };
+                
+                // 保存到本地存储（实际应用中应该保存到服务器）
+                localStorage.setItem(`draft_${paperId}`, JSON.stringify(draft));
+                
+                alert('草稿已保存');
+            } catch (error) {
+                console.error('保存草稿出错', error);
+                alert('保存草稿出错，请稍后重试');
+            }
+        }
+        
+        // 提交评审
+        async function submitReview(paperId) {
+            try {
+                const overallRating = document.querySelector('#overall-rating i.active');
+                const rating = overallRating ? parseInt(overallRating.getAttribute('data-rating')) : 0;
+                
+                const review = {
+                    paperId: paperId,
+                    overallRating: rating,
+                    innovationScore: parseInt(document.getElementById('innovation-slider').value),
+                    scientificScore: parseInt(document.getElementById('scientific-slider').value),
+                    practicalScore: parseInt(document.getElementById('practical-slider').value),
+                    writingScore: parseInt(document.getElementById('writing-slider').value),
+                    comments: document.getElementById('review-comments').value.trim(),
+                    confidentiality: document.getElementById('confidentiality').checked
+                };
+                
+                // 模拟提交到服务器
+                console.log('提交评审', review);
+                
+                // 清除草稿
+                localStorage.removeItem(`draft_${paperId}`);
+                
+                // 显示成功消息并跳转
+                alert('评审已成功提交！');
+                window.location.href = 'expert-completed.html';
+            } catch (error) {
+                console.error('提交评审出错', error);
+                alert('提交评审出错，请稍后重试');
+            }
+        }
+        
+        // 加载通知
+        async function loadNotifications() {
+            try {
+                // 使用假数据代替API调用
+                const notifications = [
+                    {
+                        id: 'notif001',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《基于深度学习的自然语言处理研究进展》待评审',
+                        createdAt: new Date(2023, 9, 15).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif002',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《量子计算在密码学中的应用研究》待评审',
+                        createdAt: new Date(2023, 9, 20).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif003',
+                        type: 'review_reminder',
+                        message: '论文《区块链技术在供应链管理中的应用模型与实践》评审即将截止，请尽快完成',
+                        createdAt: new Date(2023, 9, 23).toISOString(),
+                        read: false
+                    }
+                ];
+                
+                // 只显示未读通知
+                const unreadNotifications = notifications.filter(n => !n.read);
+                
+                const notificationList = document.getElementById('notification-list');
+                const emptyNotification = document.getElementById('empty-notification');
+                
+                if (unreadNotifications.length === 0) {
+                    emptyNotification.style.display = 'block';
+                } else {
+                    emptyNotification.style.display = 'none';
+                    
+                    let html = '';
+                    unreadNotifications.forEach(notification => {
+                        html += `
+                            <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm">${notification.message}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    notificationList.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载通知出错', error);
+                document.getElementById('empty-notification').textContent = '加载通知出错';
+                document.getElementById('empty-notification').style.display = 'block';
+            }
+        }
+        
+        // 加载通知数量
+        async function loadNotificationCount() {
+            try {
+                // 使用假数据代替API调用
+                const count = 3; // 未读通知数量
+                
+                // 更新通知徽章
+                const badge = document.getElementById('notification-badge');
+                const sidebarCount = document.getElementById('sidebar-notification-count');
+                
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                    
+                    sidebarCount.textContent = count > 99 ? '99+' : count;
+                    sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                } else {
+                    badge.style.display = 'none';
+                    sidebarCount.textContent = '';
+                    sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                }
+            } catch (error) {
+                console.error('获取通知数量出错', error);
+            }
+        }
+        
+        // 获取通知图标
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'paper_assigned': return 'file-alt';
+                case 'review_reminder': return 'clock';
+                case 'review_submitted': return 'check-circle';
+                case 'review_completed': return 'star';
+                default: return 'bell';
+            }
+        }
+        
+        // 获取通知颜色
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'paper_assigned': return 'blue';
+                case 'review_reminder': return 'yellow';
+                case 'review_submitted': return 'green';
+                case 'review_completed': return 'purple';
+                default: return 'gray';
+            }
+        }
+        
+        // 格式化时间
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return '刚刚';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths}个月前`;
+            }
+            
+            return `${Math.floor(diffInMonths / 12)}年前`;
+        }
+    </script>
+</body>
+</html>

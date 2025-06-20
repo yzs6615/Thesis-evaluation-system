@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作者仪表盘 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .paper-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        .paper-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-submitted {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-reviewing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-completed {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="author-dashboard.html" class="sidebar-link active">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="author-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 我的论文
+            </a>
+            <a href="submit-paper.html" class="sidebar-link">
+                <i class="fas fa-upload"></i> 提交论文
+            </a>
+            <a href="author-notifications.html" class="sidebar-link">
+                <i class="fas fa-bell"></i> 通知
+                <span class="notification-count ml-auto" id="sidebar-notification-count"></span>
+            </a>
+            <a href="author-profile.html" class="sidebar-link">
+                <i class="fas fa-user"></i> 个人资料
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 通知下拉菜单 -->
+                    <div class="relative mr-4">
+                        <button id="notification-btn" class="text-gray-600 focus:outline-none relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge"></span>
+                        </button>
+                        <div class="dropdown-menu" id="notification-menu">
+                            <div class="p-3 border-b border-gray-200">
+                                <h3 class="font-semibold">通知</h3>
+                            </div>
+                            <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                <!-- 通知内容将通过 JavaScript 动态加载 -->
+                                <div class="p-3 text-center text-gray-500" id="empty-notification">
+                                    暂无通知
+                                </div>
+                            </div>
+                            <div class="p-2 border-t border-gray-200 text-center">
+                                <a href="author-notifications.html" class="text-indigo-600 text-sm hover:underline">查看全部</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">加载中...</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="author-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">作者仪表盘</h1>
+                <a href="submit-paper.html" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md flex items-center">
+                    <i class="fas fa-plus mr-2"></i> 提交新论文
+                </a>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-file-alt text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">总论文数</p>
+                            <h3 class="font-bold text-2xl" id="total-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-spinner text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">评审中</p>
+                            <h3 class="font-bold text-2xl" id="reviewing-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">评审完成</p>
+                            <h3 class="font-bold text-2xl" id="completed-papers">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">平均分数</p>
+                            <h3 class="font-bold text-2xl" id="average-score">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近论文 -->
+            <div class="bg-white rounded-lg shadow mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">最近提交的论文</h2>
+                </div>
+                <div class="p-6" id="recent-papers-container">
+                    <!-- 论文列表将通过 JavaScript 动态加载 -->
+                    <div id="loading-papers" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+                        <p class="mt-2 text-gray-600">加载中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评分分布 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">评分分布</h2>
+                </div>
+                <div class="p-6">
+                    <div id="score-distribution-chart" class="h-64">
+                        <!-- 图表将通过 JavaScript 动态加载 -->
+                        <div id="no-score-data" class="flex items-center justify-center h-full">
+                            <p class="text-gray-500">暂无评分数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js 图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'author') {
+                // 未登录或不是作者，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '用户';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 通知菜单切换
+            const notificationBtn = document.getElementById('notification-btn');
+            const notificationMenu = document.getElementById('notification-menu');
+            
+            notificationBtn.addEventListener('click', function() {
+                notificationMenu.classList.toggle('show');
+                // 加载通知
+                loadNotifications();
+            });
+            
+            // 点击其他地方关闭通知菜单
+            document.addEventListener('click', function(event) {
+                if (!notificationBtn.contains(event.target) && !notificationMenu.contains(event.target)) {
+                    notificationMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 加载统计数据
+            loadStatistics();
+            
+            // 加载最近论文
+            loadRecentPapers();
+            
+            // 加载通知数量
+            loadNotificationCount();
+        });
+        
+        // 加载统计数据
+        async function loadStatistics() {
+            try {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                const response = await fetch(`/api/papers/author/${user.id}/statistics`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // 更新统计卡片
+                    document.getElementById('total-papers').textContent = data.total || 0;
+                    document.getElementById('reviewing-papers').textContent = data.reviewing || 0;
+                    document.getElementById('completed-papers').textContent = data.completed || 0;
+                    document.getElementById('average-score').textContent = data.averageScore ? data.averageScore.toFixed(1) : '0';
+                    
+                    // 如果有评分数据，绘制评分分布图表
+                    if (data.scoreDistribution && Object.keys(data.scoreDistribution).length > 0) {
+                        document.getElementById('no-score-data').style.display = 'none';
+                        drawScoreDistributionChart(data.scoreDistribution);
+                    }
+                } else {
+                    console.error('获取统计数据失败');
+                }
+            } catch (error) {
+                console.error('获取统计数据出错', error);
+            }
+        }
+        
+        // 加载最近论文
+        async function loadRecentPapers() {
+            try {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                const response = await fetch(`/api/papers/author/${user.id}?limit=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const container = document.getElementById('recent-papers-container');
+                document.getElementById('loading-papers').style.display = 'none';
+                
+                if (response.ok) {
+                    const papers = await response.json();
+                    
+                    if (papers.length === 0) {
+                        // 没有论文
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>暂无论文</h3>
+                                <p>您还没有提交任何论文，点击下方按钮开始提交您的第一篇论文。</p>
+                                <a href="submit-paper.html" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md">
+                                    提交新论文
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        // 显示论文列表
+                        let html = '<div class="space-y-4">';
+                        
+                        papers.forEach(paper => {
+                            // 确定状态标签样式
+                            let statusClass = '';
+                            let statusText = '';
+                            
+                            switch (paper.status) {
+                                case 'submitted':
+                                    statusClass = 'status-submitted';
+                                    statusText = '已提交';
+                                    break;
+                                case 'reviewing':
+                                    statusClass = 'status-reviewing';
+                                    statusText = '评审中';
+                                    break;
+                                case 'completed':
+                                    statusClass = 'status-completed';
+                                    statusText = '已完成';
+                                    break;
+                                case 'rejected':
+                                    statusClass = 'status-rejected';
+                                    statusText = '已拒绝';
+                                    break;
+                                default:
+                                    statusClass = 'status-submitted';
+                                    statusText = '已提交';
+                            }
+                            
+                            html += `
+                                <div class="paper-card">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                            <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
+                                            <div class="flex items-center text-sm text-gray-500">
+                                                <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> ${new Date(paper.createdAt).toLocaleDateString()}</span>
+                                                <span><i class="fas fa-users mr-1"></i> ${paper.assignedExperts || 0}/3 位专家已分配</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="status-badge ${statusClass} mb-2">${statusText}</span>
+                                            ${paper.averageScore ? `<span class="text-lg font-bold">${paper.averageScore.toFixed(1)}<span class="text-sm text-gray-500">/100</span></span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                                        <a href="paper-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                            查看详情 <i class="fas fa-chevron-right ml-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        container.innerHTML = html;
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center py-4 text-gray-500">
+                            <p>获取论文数据失败，请稍后重试</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载论文出错', error);
+                document.getElementById('loading-papers').style.display = 'none';
+                document.getElementById('recent-papers-container').innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <p>加载论文时出错，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 绘制评分分布图表
+        function drawScoreDistributionChart(distribution) {
+            const ctx = document.createElement('canvas');
+            document.getElementById('score-distribution-chart').appendChild(ctx);
+            
+            // 准备数据
+            const labels = [];
+            const data = [];
+            const backgroundColors = [];
+            
+            // 定义分数区间和颜色
+            const ranges = [
+                { min: 0, max: 60, label: '0-60', color: 'rgba(239, 68, 68, 0.7)' },
+                { min: 60, max: 70, label: '60-70', color: 'rgba(249, 115, 22, 0.7)' },
+                { min: 70, max: 80, label: '70-80', color: 'rgba(245, 158, 11, 0.7)' },
+                { min: 80, max: 90, label: '80-90', color: 'rgba(16, 185, 129, 0.7)' },
+                { min: 90, max: 100, label: '90-100', color: 'rgba(59, 130, 246, 0.7)' }
+            ];
+            
+            // 填充数据
+            ranges.forEach(range => {
+                labels.push(range.label);
+                
+                // 计算该区间的论文数量
+                let count = 0;
+                for (let score in distribution) {
+                    const numScore = parseFloat(score);
+                    if (numScore >= range.min && numScore < range.max) {
+                        count += distribution[score];
+                    }
+                }
+                
+                data.push(count);
+                backgroundColors.push(range.color);
+            });
+            
+            // 创建图表
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '论文数量',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载通知
+        async function loadNotifications() {
+            try {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                const response = await fetch(`/api/notifications?limit=5&unread=true`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const notificationList = document.getElementById('notification-list');
+                const emptyNotification = document.getElementById('empty-notification');
+                
+                if (response.ok) {
+                    const notifications = await response.json();
+                    
+                    if (notifications.length === 0) {
+                        emptyNotification.style.display = 'block';
+                    } else {
+                        emptyNotification.style.display = 'none';
+                        
+                        let html = '';
+                        notifications.forEach(notification => {
+                            html += `
+                                <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 mr-3">
+                                            <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm">${notification.message}</p>
+                                            <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        notificationList.innerHTML = html;
+                    }
+                } else {
+                    emptyNotification.textContent = '加载通知失败';
+                    emptyNotification.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载通知出错', error);
+                document.getElementById('empty-notification').textContent = '加载通知出错';
+                document.getElementById('empty-notification').style.display = 'block';
+            }
+        }
+        
+        // 加载通知数量
+        async function loadNotificationCount() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/notifications/count?unread=true', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.count || 0;
+                    
+                    // 更新通知徽章
+                    const badge = document.getElementById('notification-badge');
+                    const sidebarCount = document.getElementById('sidebar-notification-count');
+                    
+                    if (count > 0) {
+                        badge.textContent = count > 99 ? '99+' : count;
+                        badge.style.display = 'flex';
+                        
+                        sidebarCount.textContent = count > 99 ? '99+' : count;
+                        sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                    } else {
+                        badge.style.display = 'none';
+                        sidebarCount.textContent = '';
+                        sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                    }
+                }
+            } catch (error) {
+                console.error('获取通知数量出错', error);
+            }
+        }
+        
+        // 获取通知图标
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'paper_submitted': return 'file-alt';
+                case 'paper_assigned': return 'user-check';
+                case 'review_submitted': return 'star';
+                case 'review_completed': return 'check-circle';
+                default: return 'bell';
+            }
+        }
+        
+        // 获取通知颜色
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'paper_submitted': return 'blue';
+                case 'paper_assigned': return 'yellow';
+                case 'review_submitted': return 'purple';
+                case 'review_completed': return 'green';
+                default: return 'gray';
+            }
+        }
+        
+        // 格式化时间
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return '刚刚';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths}个月前`;
+            }
+            
+            return `${Math.floor(diffInMonths / 12)}年前`;
+        }
+    </script>
+</body>
+</html>

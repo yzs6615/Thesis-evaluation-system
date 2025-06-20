@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>已评审论文 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .paper-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        .paper-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-completed {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .filter-dropdown {
+            position: relative;
+        }
+        .filter-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+            margin-top: 0.5rem;
+        }
+        .filter-menu.show {
+            display: block;
+        }
+        .rating-stars {
+            display: flex;
+            align-items: center;
+        }
+        .rating-stars i {
+            color: #fbbf24;
+            margin-right: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="expert-dashboard.html" class="sidebar-link">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="expert-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 待评审论文
+            </a>
+            <a href="expert-completed.html" class="sidebar-link active">
+                <i class="fas fa-check-circle"></i> 已评审论文
+            </a>
+            <a href="expert-notifications.html" class="sidebar-link">
+                <i class="fas fa-bell"></i> 通知
+                <span class="notification-count ml-auto" id="sidebar-notification-count"></span>
+            </a>
+            <a href="expert-profile.html" class="sidebar-link">
+                <i class="fas fa-user"></i> 个人资料
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 通知下拉菜单 -->
+                    <div class="relative mr-4">
+                        <button id="notification-btn" class="text-gray-600 focus:outline-none relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge"></span>
+                        </button>
+                        <div class="dropdown-menu" id="notification-menu">
+                            <div class="p-3 border-b border-gray-200">
+                                <h3 class="font-semibold">通知</h3>
+                            </div>
+                            <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                <!-- 通知内容将通过 JavaScript 动态加载 -->
+                                <div class="p-3 text-center text-gray-500" id="empty-notification">
+                                    暂无通知
+                                </div>
+                            </div>
+                            <div class="p-2 border-t border-gray-200 text-center">
+                                <a href="expert-notifications.html" class="text-indigo-600 text-sm hover:underline">查看全部</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">加载中...</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="expert-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">已评审论文</h1>
+                <div class="filter-dropdown">
+                    <button id="filter-btn" class="flex items-center bg-white px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+                        <span class="mr-2">筛选</span>
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    <div class="filter-menu" id="filter-menu">
+                        <div class="p-3 border-b border-gray-200">
+                            <h3 class="font-semibold">按评分筛选</h3>
+                        </div>
+                        <div class="p-3">
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="all" checked class="mr-2">
+                                    <span>全部</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="5" class="mr-2">
+                                    <span>5星</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="4" class="mr-2">
+                                    <span>4星</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="3" class="mr-2">
+                                    <span>3星</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="2" class="mr-2">
+                                    <span>2星</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" value="1" class="mr-2">
+                                    <span>1星</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-3 border-t border-gray-200">
+                            <button id="apply-filter" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors">应用筛选</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 论文列表 -->
+            <div id="papers-container" class="space-y-6">
+                <!-- 加载状态 -->
+                <div id="loading-papers" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-indigo-600 text-2xl"></i>
+                    <p class="mt-2 text-gray-600">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 分页控件 -->
+            <div class="mt-8 flex justify-center" id="pagination">
+                <nav class="inline-flex rounded-md shadow">
+                    <button id="prev-page" class="px-3 py-1 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="page-numbers" class="flex">
+                        <!-- 页码将通过 JavaScript 动态生成 -->
+                    </div>
+                    <button id="next-page" class="px-3 py-1 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'expert') {
+                // 未登录或不是专家，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '用户';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 通知菜单切换
+            const notificationBtn = document.getElementById('notification-btn');
+            const notificationMenu = document.getElementById('notification-menu');
+            
+            notificationBtn.addEventListener('click', function() {
+                notificationMenu.classList.toggle('show');
+                // 加载通知
+                loadNotifications();
+            });
+            
+            // 点击其他地方关闭通知菜单
+            document.addEventListener('click', function(event) {
+                if (!notificationBtn.contains(event.target) && !notificationMenu.contains(event.target)) {
+                    notificationMenu.classList.remove('show');
+                }
+            });
+            
+            // 筛选菜单切换
+            const filterBtn = document.getElementById('filter-btn');
+            const filterMenu = document.getElementById('filter-menu');
+            
+            filterBtn.addEventListener('click', function() {
+                filterMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭筛选菜单
+            document.addEventListener('click', function(event) {
+                if (!filterBtn.contains(event.target) && !filterMenu.contains(event.target)) {
+                    filterMenu.classList.remove('show');
+                }
+            });
+            
+            // 应用筛选
+            document.getElementById('apply-filter').addEventListener('click', function() {
+                const rating = document.querySelector('input[name="rating"]:checked').value;
+                loadCompletedPapers(rating);
+                filterMenu.classList.remove('show');
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 加载已评审论文列表
+            loadCompletedPapers('all');
+            
+            // 加载通知数量
+            loadNotificationCount();
+        });
+        
+        // 加载已评审论文列表
+        async function loadCompletedPapers(ratingFilter = 'all') {
+            try {
+                document.getElementById('loading-papers').style.display = 'block';
+                
+                // 使用假数据代替API调用
+                const completedPapers = [
+                    {
+                        id: 'paper004',
+                        title: '人工智能在医疗诊断中的应用与伦理问题研究',
+                        abstract: '本文探讨了人工智能技术在医疗诊断领域的应用现状和发展趋势，分析了AI辅助诊断系统的技术原理和临床效果，并深入讨论了AI医疗应用中的伦理问题、隐私保护和法律责任等关键议题。',
+                        authorName: '赵六',
+                        completedAt: new Date(2023, 8, 10).toISOString(),
+                        rating: 5,
+                        comments: '这是一篇非常出色的论文，作者对人工智能在医疗领域的应用进行了全面而深入的分析，特别是对伦理问题的讨论见解独到。论文结构清晰，论证严谨，参考文献丰富且权威，是该领域的重要贡献。'
+                    },
+                    {
+                        id: 'paper005',
+                        title: '5G网络安全威胁与防御策略研究',
+                        abstract: '本文系统分析了5G网络面临的安全威胁和挑战，包括网络架构安全、空口安全、切片安全等方面，并提出了相应的防御策略和安全解决方案，为5G网络的安全部署和运营提供了理论指导和实践参考。',
+                        authorName: '孙七',
+                        completedAt: new Date(2023, 8, 15).toISOString(),
+                        rating: 4,
+                        comments: '论文对5G网络安全问题的分析全面且深入，提出的防御策略具有一定的创新性和实用价值。研究方法规范，数据分析准确，但在某些技术细节的描述上还可以更加精确，建议在未来研究中进一步完善相关实验验证。'
+                    },
+                    {
+                        id: 'paper006',
+                        title: '区块链在数字版权保护中的应用模型研究',
+                        abstract: '本文提出了一种基于区块链技术的数字版权保护新模型，解决了传统数字版权管理中存在的中心化风险、追溯困难等问题，并通过原型系统实现和性能测试验证了该模型的可行性和有效性。',
+                        authorName: '周八',
+                        completedAt: new Date(2023, 8, 20).toISOString(),
+                        rating: 3,
+                        comments: '论文选题具有较好的应用前景，研究思路清晰。提出的基于区块链的版权保护模型有一定创新性，但模型的可扩展性和实际应用场景适应性分析不够充分，建议进一步完善模型设计并增加更多实际应用案例分析。'
+                    },
+                    {
+                        id: 'paper007',
+                        title: '机器学习在网络流量异常检测中的应用研究',
+                        abstract: '本文研究了机器学习算法在网络流量异常检测中的应用，比较分析了多种监督学习和无监督学习方法的检测效果，并提出了一种融合多特征的集成学习模型，实验结果表明该模型在检测准确率和实时性方面均优于传统方法。',
+                        authorName: '吴九',
+                        completedAt: new Date(2023, 8, 25).toISOString(),
+                        rating: 4,
+                        comments: '论文研究内容充实，实验设计合理，对比分析了多种机器学习算法在网络异常检测中的表现，提出的集成学习模型具有一定的创新性。建议在未来研究中进一步优化模型参数，并考虑在更多实际网络环境中进行验证。'
+                    },
+                    {
+                        id: 'paper008',
+                        title: '智能物联网在智慧城市建设中的应用与挑战',
+                        abstract: '本文探讨了智能物联网技术在智慧城市建设中的应用现状和发展趋势，分析了当前面临的技术挑战和解决方案，并通过案例研究总结了成功经验和最佳实践，为智慧城市规划和建设提供了参考。',
+                        authorName: '郑十',
+                        completedAt: new Date(2023, 8, 30).toISOString(),
+                        rating: 2,
+                        comments: '论文选题具有现实意义，但研究深度不够，对智能物联网在智慧城市中的应用分析较为表面，缺乏深入的技术剖析和创新性观点。案例研究部分内容重复，建议增加更多原创性分析和具体的技术实现方案。'
+                    }
+                ];
+                
+                // 根据评分筛选
+                let filteredPapers = completedPapers;
+                if (ratingFilter !== 'all') {
+                    const ratingValue = parseInt(ratingFilter);
+                    filteredPapers = completedPapers.filter(paper => paper.rating === ratingValue);
+                }
+                
+                const container = document.getElementById('papers-container');
+                document.getElementById('loading-papers').style.display = 'none';
+                
+                if (filteredPapers.length === 0) {
+                    // 没有论文
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>暂无已评审论文</h3>
+                            <p>您目前没有已完成评审的论文。</p>
+                        </div>
+                    `;
+                    document.getElementById('pagination').style.display = 'none';
+                } else {
+                    // 显示论文列表
+                    let html = '';
+                    
+                    filteredPapers.forEach(paper => {
+                        // 生成星级评分HTML
+                        let starsHtml = '';
+                        for (let i = 1; i <= 5; i++) {
+                            if (i <= paper.rating) {
+                                starsHtml += '<i class="fas fa-star"></i>';
+                            } else {
+                                starsHtml += '<i class="far fa-star"></i>';
+                            }
+                        }
+                        
+                        html += `
+                            <div class="paper-card">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                        <p class="text-gray-600 text-sm mb-2">${paper.abstract ? paper.abstract.substring(0, 150) + '...' : '无摘要'}</p>
+                                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                                            <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> 评审完成时间: ${new Date(paper.completedAt).toLocaleDateString()}</span>
+                                            <span><i class="fas fa-user mr-1"></i> 作者: ${paper.authorName || '未知'}</span>
+                                        </div>
+                                        <div class="rating-stars mb-2">
+                                            <span class="text-sm text-gray-500 mr-2">评分:</span>
+                                            ${starsHtml}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="status-badge status-completed">已评审</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">评审意见:</h4>
+                                    <p class="text-sm text-gray-600">${paper.comments || '无评审意见'}</p>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                                    <a href="review-details.html?id=${paper.id}" class="bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-4 rounded-md text-sm">
+                                        查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    
+                    // 设置分页
+                    setupPagination(filteredPapers.length);
+                }
+            } catch (error) {
+                console.error('加载已评审论文出错', error);
+                document.getElementById('loading-papers').style.display = 'none';
+                document.getElementById('papers-container').innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <p>加载论文时出错，请稍后重试</p>
+                    </div>
+                `;
+                document.getElementById('pagination').style.display = 'none';
+            }
+        }
+        
+        // 设置分页
+        function setupPagination(totalItems) {
+            const itemsPerPage = 10;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('pagination').style.display = 'flex';
+            
+            const pageNumbers = document.getElementById('page-numbers');
+            pageNumbers.innerHTML = '';
+            
+            // 当前页码
+            const currentPage = 1;
+            
+            // 生成页码
+            for (let i = 1; i <= totalPages; i++) {
+                const isActive = i === currentPage;
+                
+                const pageButton = document.createElement('button');
+                pageButton.className = `px-3 py-1 border border-gray-300 ${isActive ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`;
+                pageButton.textContent = i;
+                
+                pageButton.addEventListener('click', function() {
+                    // 切换到对应页面的逻辑
+                    console.log(`切换到第 ${i} 页`);
+                });
+                
+                pageNumbers.appendChild(pageButton);
+            }
+            
+            // 上一页、下一页按钮状态
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            
+            // 上一页、下一页按钮事件
+            document.getElementById('prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    // 切换到上一页的逻辑
+                    console.log(`切换到第 ${currentPage - 1} 页`);
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    // 切换到下一页的逻辑
+                    console.log(`切换到第 ${currentPage + 1} 页`);
+                }
+            });
+        }
+        
+        // 加载通知
+        async function loadNotifications() {
+            try {
+                // 使用假数据代替API调用
+                const notifications = [
+                    {
+                        id: 'notif001',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《基于深度学习的自然语言处理研究进展》待评审',
+                        createdAt: new Date(2023, 9, 15).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif002',
+                        type: 'paper_assigned',
+                        message: '您有一篇新的论文《量子计算在密码学中的应用研究》待评审',
+                        createdAt: new Date(2023, 9, 20).toISOString(),
+                        read: false
+                    },
+                    {
+                        id: 'notif003',
+                        type: 'review_reminder',
+                        message: '论文《区块链技术在供应链管理中的应用模型与实践》评审即将截止，请尽快完成',
+                        createdAt: new Date(2023, 9, 23).toISOString(),
+                        read: false
+                    }
+                ];
+                
+                // 只显示未读通知
+                const unreadNotifications = notifications.filter(n => !n.read);
+                
+                const notificationList = document.getElementById('notification-list');
+                const emptyNotification = document.getElementById('empty-notification');
+                
+                if (unreadNotifications.length === 0) {
+                    emptyNotification.style.display = 'block';
+                } else {
+                    emptyNotification.style.display = 'none';
+                    
+                    let html = '';
+                    unreadNotifications.forEach(notification => {
+                        html += `
+                            <div class="p-3 border-b border-gray-100 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm">${notification.message}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.createdAt))}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    notificationList.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载通知出错', error);
+                document.getElementById('empty-notification').textContent = '加载通知出错';
+                document.getElementById('empty-notification').style.display = 'block';
+            }
+        }
+        
+        // 加载通知数量
+        async function loadNotificationCount() {
+            try {
+                // 使用假数据代替API调用
+                const count = 3; // 未读通知数量
+                
+                // 更新通知徽章
+                const badge = document.getElementById('notification-badge');
+                const sidebarCount = document.getElementById('sidebar-notification-count');
+                
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                    
+                    sidebarCount.textContent = count > 99 ? '99+' : count;
+                    sidebarCount.classList.add('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                } else {
+                    badge.style.display = 'none';
+                    sidebarCount.textContent = '';
+                    sidebarCount.classList.remove('bg-red-500', 'text-white', 'rounded-full', 'px-1.5', 'py-0.5', 'text-xs');
+                }
+            } catch (error) {
+                console.error('获取通知数量出错', error);
+            }
+        }
+        
+        // 获取通知图标
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'paper_assigned': return 'file-alt';
+                case 'review_reminder': return 'clock';
+                case 'review_submitted': return 'check-circle';
+                case 'review_completed': return 'star';
+                default: return 'bell';
+            }
+        }
+        
+        // 获取通知颜色
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'paper_assigned': return 'blue';
+                case 'review_reminder': return 'yellow';
+                case 'review_submitted': return 'green';
+                case 'review_completed': return 'purple';
+                default: return 'gray';
+            }
+        }
+        
+        // 格式化时间
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return '刚刚';
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths}个月前`;
+            }
+            
+            return `${Math.floor(diffInMonths / 12)}年前`;
+        }
+    </script>
+</body>
+</html>

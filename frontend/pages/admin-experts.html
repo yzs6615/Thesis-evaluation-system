@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专家管理 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th {
+            background-color: #f9fafb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            color: #4b5563;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .admin-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+        .admin-table tr:hover {
+            background-color: #f9fafb;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .pagination-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            margin: 0 0.25rem;
+            border-radius: 0.375rem;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination-item:hover {
+            background-color: #f3f4f6;
+        }
+        .pagination-item.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .pagination-item.disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .filter-dropdown {
+            position: relative;
+        }
+        .filter-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 10;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        .filter-menu.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="admin-dashboard.html" class="sidebar-link">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="admin-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 论文管理
+            </a>
+            <a href="admin-experts.html" class="sidebar-link active">
+                <i class="fas fa-user-tie"></i> 专家管理
+            </a>
+            <a href="admin-users.html" class="sidebar-link">
+                <i class="fas fa-users"></i> 用户管理
+            </a>
+            <a href="admin-statistics.html" class="sidebar-link">
+                <i class="fas fa-chart-bar"></i> 统计分析
+            </a>
+            <a href="admin-settings.html" class="sidebar-link">
+                <i class="fas fa-cog"></i> 系统设置
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">管理员</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="admin-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">专家管理</h1>
+                <div class="flex space-x-2">
+                    <!-- 搜索框 -->
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="搜索专家姓名或领域" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <!-- 筛选按钮 -->
+                    <div class="filter-dropdown">
+                        <button id="filter-btn" class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <i class="fas fa-filter mr-2"></i> 筛选
+                        </button>
+                        <div class="filter-menu p-4" id="filter-menu">
+                            <h3 class="font-medium text-gray-700 mb-2">状态</h3>
+                            <div class="space-y-2 mb-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-2" value="active">
+                                    <span class="status-badge status-active">活跃</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-2" value="inactive">
+                                    <span class="status-badge status-inactive">不活跃</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-2" value="pending">
+                                    <span class="status-badge status-pending">待审核</span>
+                                </label>
+                            </div>
+                            <h3 class="font-medium text-gray-700 mb-2">研究领域</h3>
+                            <div class="space-y-2 mb-4" id="field-filters">
+                                <!-- 研究领域筛选将通过 JavaScript 动态加载 -->
+                                <div class="text-center py-2">
+                                    <i class="fas fa-spinner fa-spin text-indigo-600 mr-2"></i> 加载中...
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button id="reset-filter" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800">
+                                    重置
+                                </button>
+                                <button id="apply-filter" class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                                    应用筛选
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 添加专家按钮 -->
+                    <a href="add-expert.html" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none">
+                        <i class="fas fa-plus mr-2"></i> 添加专家
+                    </a>
+                    <!-- 批量操作按钮 -->
+                    <div class="relative">
+                        <button id="batch-action-btn" class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none" disabled>
+                            <i class="fas fa-cog mr-2"></i> 批量操作
+                        </button>
+                        <div class="dropdown-menu" id="batch-action-menu">
+                            <a href="#" class="dropdown-item" id="batch-activate">
+                                <i class="fas fa-check-circle mr-2"></i> 批量激活
+                            </a>
+                            <a href="#" class="dropdown-item" id="batch-deactivate">
+                                <i class="fas fa-times-circle mr-2"></i> 批量停用
+                            </a>
+                            <a href="#" class="dropdown-item" id="batch-export">
+                                <i class="fas fa-file-export mr-2"></i> 导出选中项
+                            </a>
+                            <a href="#" class="dropdown-item text-red-600" id="batch-delete">
+                                <i class="fas fa-trash-alt mr-2"></i> 删除选中项
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专家列表 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th class="w-10">
+                                    <input type="checkbox" id="select-all">
+                                </th>
+                                <th>姓名</th>
+                                <th>邮箱</th>
+                                <th>研究领域</th>
+                                <th>评审数量</th>
+                                <th>平均评分</th>
+                                <th>状态</th>
+                                <th>注册日期</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="experts-table">
+                            <!-- 专家列表将通过 JavaScript 动态加载 -->
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <i class="fas fa-spinner fa-spin text-indigo-600 mr-2"></i> 加载中...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            显示 <span id="showing-start">1</span> 到 <span id="showing-end">10</span> 条，共 <span id="total-count">0</span> 条
+                        </div>
+                        <div class="pagination" id="pagination">
+                            <!-- 分页将通过 JavaScript 动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 专家详情模态框 -->
+    <div id="expert-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">专家详情</h3>
+                <button id="close-detail-modal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">基本信息</h4>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">姓名：</span><span id="detail-name" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">邮箱：</span><span id="detail-email" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">电话：</span><span id="detail-phone" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">研究领域：</span><span id="detail-field" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">状态：</span><span id="detail-status" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">注册日期：</span><span id="detail-registered" class="text-gray-800"></span></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">评审统计</h4>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">总评审数：</span><span id="detail-total-reviews" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">已完成评审：</span><span id="detail-completed-reviews" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">进行中评审：</span><span id="detail-ongoing-reviews" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">平均评分：</span><span id="detail-avg-score" class="text-gray-800"></span></p>
+                            <p><span class="text-gray-600">平均评审时间：</span><span id="detail-avg-time" class="text-gray-800"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-700 mb-2">专业背景</h4>
+                    <p id="detail-background" class="text-gray-800"></p>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-700 mb-2">最近评审的论文</h4>
+                    <div class="max-h-40 overflow-y-auto" id="detail-recent-papers">
+                        <!-- 最近评审的论文将通过 JavaScript 动态加载 -->
+                        <div class="text-center py-2">
+                            <i class="fas fa-spinner fa-spin text-indigo-600 mr-2"></i> 加载中...
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button id="close-detail" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                        关闭
+                    </button>
+                    <a href="#" id="edit-expert" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        编辑专家
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">确认删除</h3>
+                <button id="close-delete-modal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <p class="text-gray-700">您确定要删除选中的专家吗？此操作无法撤销。</p>
+                <div class="mt-4 text-sm text-gray-600">
+                    <p>选中的专家：<span id="delete-count">0</span> 位</p>
+                </div>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button id="cancel-delete" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                        取消
+                    </button>
+                    <button id="confirm-delete" class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'admin') {
+                // 未登录或不是管理员，重定向到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '管理员';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+
+            // 筛选菜单切换
+            const filterBtn = document.getElementById('filter-btn');
+            const filterMenu = document.getElementById('filter-menu');
+            
+            filterBtn.addEventListener('click', function() {
+                filterMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭筛选菜单
+            document.addEventListener('click', function(event) {
+                if (!filterBtn.contains(event.target) && !filterMenu.contains(event.target)) {
+                    filterMenu.classList.remove('show');
+                }
+            });
+
+            // 批量操作菜单切换
+            const batchActionBtn = document.getElementById('batch-action-btn');
+            const batchActionMenu = document.getElementById('batch-action-menu');
+            
+            batchActionBtn.addEventListener('click', function() {
+                if (!batchActionBtn.disabled) {
+                    batchActionMenu.classList.toggle('show');
+                }
+            });
+            
+            // 点击其他地方关闭批量操作菜单
+            document.addEventListener('click', function(event) {
+                if (!batchActionBtn.contains(event.target) && !batchActionMenu.contains(event.target)) {
+                    batchActionMenu.classList.remove('show');
+                }
+            });
+
+            // 全选/取消全选
+            const selectAll = document.getElementById('select-all');
+            
+            selectAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.expert-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAll.checked;
+                });
+                updateBatchActionButton();
+            });
+
+            // 更新批量操作按钮状态
+            function updateBatchActionButton() {
+                const checkedCount = document.querySelectorAll('.expert-checkbox:checked').length;
+                batchActionBtn.disabled = checkedCount === 0;
+                batchActionBtn.classList.toggle('opacity-50', checkedCount === 0);
+                batchActionBtn.classList.toggle('cursor-not-allowed', checkedCount === 0);
+            }
+
+            // 加载专家列表
+            let currentPage = 1;
+            let pageSize = 10;
+            let totalPages = 1;
+            let filters = {
+                status: [],
+                fields: [],
+                search: ''
+            };
+
+            // 加载研究领域筛选选项
+            loadFieldFilters();
+
+            // 加载专家列表
+            loadExperts(currentPage, pageSize, filters);
+
+            // 搜索功能
+            const searchInput = document.getElementById('search-input');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    filters.search = searchInput.value.trim();
+                    currentPage = 1;
+                    loadExperts(currentPage, pageSize, filters);
+                }, 500);
+            });
+
+            // 应用筛选
+            document.getElementById('apply-filter').addEventListener('click', function() {
+                // 获取状态筛选
+                const statusCheckboxes = document.querySelectorAll('.status-filter:checked');
+                filters.status = Array.from(statusCheckboxes).map(cb => cb.value);
+                
+                // 获取研究领域筛选
+                const fieldCheckboxes = document.querySelectorAll('.field-filter:checked');
+                filters.fields = Array.from(fieldCheckboxes).map(cb => cb.value);
+                
+                // 重置到第一页并加载数据
+                currentPage = 1;
+                loadExperts(currentPage, pageSize, filters);
+                
+                // 关闭筛选菜单
+                filterMenu.classList.remove('show');
+            });
+
+            // 重置筛选
+            document.getElementById('reset-filter').addEventListener('click', function() {
+                // 重置状态筛选
+                document.querySelectorAll('.status-filter').forEach(cb => {
+                    cb.checked = false;
+                });
+                
+                // 重置研究领域筛选
+                document.querySelectorAll('.field-filter').forEach(cb => {
+                    cb.checked = false;
+                });
+                
+                // 重置筛选对象
+                filters = {
+                    status: [],
+                    fields: [],
+                    search: searchInput.value.trim()
+                };
+                
+                // 重置到第一页并加载数据
+                currentPage = 1;
+                loadExperts(currentPage, pageSize, filters);
+            });
+
+            // 批量激活
+            document.getElementById('batch-activate').addEventListener('click', function() {
+                const selectedExperts = getSelectedExperts();
+                if (selectedExperts.length > 0) {
+                    updateExpertsStatus(selectedExperts, 'active');
+                }
+                batchActionMenu.classList.remove('show');
+            });
+
+            // 批量停用
+            document.getElementById('batch-deactivate').addEventListener('click', function() {
+                const selectedExperts = getSelectedExperts();
+                if (selectedExperts.length > 0) {
+                    updateExpertsStatus(selectedExperts, 'inactive');
+                }
+                batchActionMenu.classList.remove('show');
+            });
+
+            // 批量导出
+            document.getElementById('batch-export').addEventListener('click', function() {
+                const selectedExperts = getSelectedExperts();
+                if (selectedExperts.length > 0) {
+                    exportExperts(selectedExperts);
+                }
+                batchActionMenu.classList.remove('show');
+            });
+
+            // 批量删除
+            document.getElementById('batch-delete').addEventListener('click', function() {
+                const selectedExperts = getSelectedExperts();
+                if (selectedExperts.length > 0) {
+                    // 显示删除确认模态框
+                    document.getElementById('delete-count').textContent = selectedExperts.length;
+                    document.getElementById('delete-modal').classList.remove('hidden');
+                }
+                batchActionMenu.classList.remove('show');
+            });
+
+            // 关闭专家详情模态框
+            document.getElementById('close-detail-modal').addEventListener('click', function() {
+                document.getElementById('expert-detail-modal').classList.add('hidden');
+            });
+
+            document.getElementById('close-detail').addEventListener('click', function() {
+                document.getElementById('expert-detail-modal').classList.add('hidden');
+            });
+
+            // 关闭删除确认模态框
+            document.getElementById('close-delete-modal').addEventListener('click', function() {
+                document.getElementById('delete-modal').classList.add('hidden');
+            });
+
+            document.getElementById('cancel-delete').addEventListener('click', function() {
+                document.getElementById('delete-modal').classList.add('hidden');
+            });
+
+            // 确认删除
+            document.getElementById('confirm-delete').addEventListener('click', function() {
+                const selectedExperts = getSelectedExperts();
+                if (selectedExperts.length > 0) {
+                    deleteExperts(selectedExperts);
+                }
+            });
+
+            // 获取选中的专家ID
+            function getSelectedExperts() {
+                const checkboxes = document.querySelectorAll('.expert-checkbox:checked');
+                return Array.from(checkboxes).map(cb => cb.value);
+            }
+
+            // 加载研究领域筛选选项
+            async function loadFieldFilters() {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    const response = await fetch('/api/fields', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const container = document.getElementById('field-filters');
+                    
+                    if (response.ok) {
+                        const fields = await response.json();
+                        
+                        if (fields.length === 0) {
+                            container.innerHTML = `<p class="text-center text-gray-500">暂无研究领域数据</p>`;
+                        } else {
+                            let html = '';
+                            
+                            fields.forEach(field => {
+                                html += `
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="field-filter mr-2" value="${field.id}">
+                                        <span class="text-gray-800">${field.name}</span>
+                                    </label>
+                                `;
+                            });
+                            
+                            container.innerHTML = html;
+                        }
+                    } else {
+                        container.innerHTML = `<p class="text-center text-gray-500">获取研究领域数据失败</p>`;
+                    }
+                } catch (error) {
+                    console.error('加载研究领域筛选选项出错', error);
+                    document.getElementById('field-filters').innerHTML = `<p class="text-center text-gray-500">加载研究领域数据时出错</p>`;
+                }
+            }
+
+            // 加载专家列表
+            async function loadExperts(page, size, filters) {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    // 构建查询参数
+                    let queryParams = `page=${page}&size=${size}`;
+                    
+                    if (filters.search) {
+                        queryParams += `&search=${encodeURIComponent(filters.search)}`;
+                    }
+                    
+                    if (filters.status && filters.status.length > 0) {
+                        filters.status.forEach(status => {
+                            queryParams += `&status=${encodeURIComponent(status)}`;
+                        });
+                    }
+                    
+                    if (filters.fields && filters.fields.length > 0) {
+                        filters.fields.forEach(field => {
+                            queryParams += `&field=${encodeURIComponent(field)}`;
+                        });
+                    }
+                    
+                    const response = await fetch(`/api/experts?${queryParams}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const tableBody = document.getElementById('experts-table');
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const experts = data.experts || [];
+                        const total = data.total || 0;
+                        totalPages = Math.ceil(total / size);
+                        
+                        // 更新显示信息
+                        document.getElementById('total-count').textContent = total;
+                        document.getElementById('showing-start').textContent = total === 0 ? 0 : (page - 1) * size + 1;
+                        document.getElementById('showing-end').textContent = Math.min(page * size, total);
+                        
+                        // 更新分页
+                        updatePagination(page, totalPages);
+                        
+                        if (experts.length === 0) {
+                            tableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="9" class="text-center py-4 text-gray-500">暂无专家数据</td>
+                                </tr>
+                            `;
+                        } else {
+                            let html = '';
+                            
+                            experts.forEach(expert => {
+                                let statusBadge = '';
+                                
+                                switch (expert.status) {
+                                    case 'active':
+                                        statusBadge = '<span class="status-badge status-active">活跃</span>';
+                                        break;
+                                    case 'inactive':
+                                        statusBadge = '<span class="status-badge status-inactive">不活跃</span>';
+                                        break;
+                                    case 'pending':
+                                        statusBadge = '<span class="status-badge status-pending">待审核</span>';
+                                        break;
+                                    default:
+                                        statusBadge = '<span class="status-badge">未知</span>';
+                                }
+                                
+                                html += `
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="expert-checkbox" value="${expert.id}">
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium view-expert" data-id="${expert.id}">
+                                                ${expert.name}
+                                            </a>
+                                        </td>
+                                        <td>${expert.email}</td>
+                                        <td>${expert.field || '未指定'}</td>
+                                        <td>${expert.reviewCount || 0}</td>
+                                        <td>${expert.averageScore ? expert.averageScore.toFixed(1) : '-'}</td>
+                                        <td>${statusBadge}</td>
+                                        <td>${new Date(expert.registeredAt).toLocaleString()}</td>
+                                        <td>
+                                            <div class="flex space-x-2">
+                                                <a href="#" class="text-indigo-600 hover:text-indigo-800 view-expert" data-id="${expert.id}" title="查看详情">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="edit-expert.html?id=${expert.id}" class="text-yellow-600 hover:text-yellow-800" title="编辑">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="text-red-600 hover:text-red-800 delete-expert" data-id="${expert.id}" title="删除">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            tableBody.innerHTML = html;
+                            
+                            // 添加复选框事件监听
+                            document.querySelectorAll('.expert-checkbox').forEach(checkbox => {
+                                checkbox.addEventListener('change', function() {
+                                    updateBatchActionButton();
+                                    
+                                    // 更新全选复选框状态
+                                    const allChecked = document.querySelectorAll('.expert-checkbox:checked').length === document.querySelectorAll('.expert-checkbox').length;
+                                    selectAll.checked = allChecked;
+                                });
+                            });
+                            
+                            // 添加查看详情按钮事件监听
+                            document.querySelectorAll('.view-expert').forEach(btn => {
+                                btn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    const expertId = this.getAttribute('data-id');
+                                    viewExpertDetail(expertId);
+                                });
+                            });
+                            
+                            // 添加删除按钮事件监听
+                            document.querySelectorAll('.delete-expert').forEach(btn => {
+                                btn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    const expertId = this.getAttribute('data-id');
+                                    
+                                    // 显示删除确认模态框
+                                    document.getElementById('delete-count').textContent = 1;
+                                    document.getElementById('delete-modal').classList.remove('hidden');
+                                    
+                                    // 设置确认删除按钮的事件
+                                    document.getElementById('confirm-delete').onclick = function() {
+                                        deleteExperts([expertId]);
+                                    };
+                                });
+                            });
+                        }
+                    } else {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-center py-4 text-gray-500">获取专家数据失败</td>
+                            </tr>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('加载专家列表出错', error);
+                    document.getElementById('experts-table').innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-gray-500">加载专家数据时出错</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            // 更新分页
+            function updatePagination(currentPage, totalPages) {
+                const pagination = document.getElementById('pagination');
+                let html = '';
+                
+                // 上一页按钮
+                html += `
+                    <div class="pagination-item ${currentPage === 1 ? 'disabled' : ''}" data-page="${currentPage - 1}">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                `;
+                
+                // 页码按钮
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                if (endPage - startPage < 4 && startPage > 1) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    html += `
+                        <div class="pagination-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                            ${i}
+                        </div>
+                    `;
+                }
+                
+                // 下一页按钮
+                html += `
+                    <div class="pagination-item ${currentPage === totalPages ? 'disabled' : ''}" data-page="${currentPage + 1}">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                `;
+                
+                pagination.innerHTML = html;
+                
+                // 添加分页按钮事件监听
+                document.querySelectorAll('.pagination-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        if (!this.classList.contains('disabled') && !this.classList.contains('active')) {
+                            const page = parseInt(this.getAttribute('data-page'));
+                            currentPage = page;
+                            loadExperts(page, pageSize, filters);
+                        }
+                    });
+                });
+            }
+
+            // 查看专家详情
+            async function viewExpertDetail(expertId) {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    const response = await fetch(`/api/experts/${expertId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const expert = await response.json();
+                        
+                        // 填充专家详情
+                        document.getElementById('detail-name').textContent = expert.name;
+                        document.getElementById('detail-email').textContent = expert.email;
+                        document.getElementById('detail-phone').textContent = expert.phone || '未提供';
+                        document.getElementById('detail-field').textContent = expert.field || '未指定';
+                        
+                        let statusText = '';
+                        switch (expert.status) {
+                            case 'active':
+                                statusText = '<span class="status-badge status-active">活跃</span>';
+                                break;
+                            case 'inactive':
+                                statusText = '<span class="status-badge status-inactive">不活跃</span>';
+                                break;
+                            case 'pending':
+                                statusText = '<span class="status-badge status-pending">待审核</span>';
+                                break;
+                            default:
+                                statusText = '<span class="status-badge">未知</span>';
+                        }
+                        document.getElementById('detail-status').innerHTML = statusText;
+                        
+                        document.getElementById('detail-registered').textContent = new Date(expert.registeredAt).toLocaleString();
+                        document.getElementById('detail-total-reviews').textContent = expert.reviewCount || 0;
+                        document.getElementById('detail-completed-reviews').textContent = expert.completedReviewCount || 0;
+                        document.getElementById('detail-ongoing-reviews').textContent = expert.ongoingReviewCount || 0;
+                        document.getElementById('detail-avg-score').textContent = expert.averageScore ? expert.averageScore.toFixed(1) : '-';
+                        document.getElementById('detail-avg-time').textContent = expert.averageReviewTime ? `${expert.averageReviewTime} 天` : '-';
+                        document.getElementById('detail-background').textContent = expert.background || '未提供专业背景信息';
+                        
+                        // 设置编辑链接
+                        document.getElementById('edit-expert').href = `edit-expert.html?id=${expertId}`;
+                        
+                        // 加载最近评审的论文
+                        loadRecentPapers(expertId);
+                        
+                        // 显示模态框
+                        document.getElementById('expert-detail-modal').classList.remove('hidden');
+                    } else {
+                        alert('获取专家详情失败');
+                    }
+                } catch (error) {
+                    console.error('查看专家详情出错', error);
+                    alert('查看专家详情时出错，请稍后重试');
+                }
+            }
+
+            // 加载最近评审的论文
+            async function loadRecentPapers(expertId) {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    const response = await fetch(`/api/experts/${expertId}/papers?limit=5`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const container = document.getElementById('detail-recent-papers');
+                    
+                    if (response.ok) {
+                        const papers = await response.json();
+                        
+                        if (papers.length === 0) {
+                            container.innerHTML = `<p class="text-center text-gray-500">暂无评审论文数据</p>`;
+                        } else {
+                            let html = '';
+                            
+                            papers.forEach(paper => {
+                                let statusBadge = '';
+                                
+                                switch (paper.status) {
+                                    case 'submitted':
+                                        statusBadge = '<span class="status-badge status-submitted">已提交</span>';
+                                        break;
+                                    case 'reviewing':
+                                        statusBadge = '<span class="status-badge status-reviewing">评审中</span>';
+                                        break;
+                                    case 'completed':
+                                        statusBadge = '<span class="status-badge status-completed">已完成</span>';
+                                        break;
+                                    case 'rejected':
+                                        statusBadge = '<span class="status-badge status-rejected">已拒绝</span>';
+                                        break;
+                                    default:
+                                        statusBadge = '<span class="status-badge">未知</span>';
+                                }
+                                
+                                html += `
+                                    <div class="p-2 border-b border-gray-200">
+                                        <div class="flex justify-between items-center">
+                                            <a href="admin-paper-detail.html?id=${paper.id}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                                                ${paper.title}
+                                            </a>
+                                            <div class="flex items-center">
+                                                ${statusBadge}
+                                                <span class="ml-2 text-sm text-gray-600">${new Date(paper.reviewedAt || paper.assignedAt).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mt-1">
+                                            评分: ${paper.score || '-'} | 作者: ${paper.author.name}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            container.innerHTML = html;
+                        }
+                    } else {
+                        container.innerHTML = `<p class="text-center text-gray-500">获取评审论文数据失败</p>`;
+                    }
+                } catch (error) {
+                    console.error('加载最近评审的论文出错', error);
+                    document.getElementById('detail-recent-papers').innerHTML = `<p class="text-center text-gray-500">加载评审论文数据时出错</p>`;
+                }
+            }
+
+            // 更新专家状态
+            async function updateExpertsStatus(expertIds, status) {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    const response = await fetch('/api/experts/status', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            expertIds: expertIds,
+                            status: status
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        // 显示成功消息
+                        let statusText = '';
+                        switch (status) {
+                            case 'active':
+                                statusText = '激活';
+                                break;
+                            case 'inactive':
+                                statusText = '停用';
+                                break;
+                            default:
+                                statusText = '更新';
+                        }
+                        alert(`专家${statusText}成功`);
+                        
+                        // 重新加载专家列表
+                        loadExperts(currentPage, pageSize, filters);
+                    } else {
+                        const error = await response.json();
+                        alert(`更新专家状态失败: ${error.message || '未知错误'}`);
+                    }
+                } catch (error) {
+                    console.error('更新专家状态出错', error);
+                    alert('更新专家状态时出错，请稍后重试');
+                }
+            }
+
+            // 导出专家
+            function exportExperts(expertIds) {
+                const token = localStorage.getItem('token');
+                const queryParams = expertIds.map(id => `id=${id}`).join('&');
+                
+                // 创建一个临时链接并模拟点击下载
+                const link = document.createElement('a');
+                link.href = `/api/experts/export?${queryParams}`;
+                link.setAttribute('download', 'experts_export.csv');
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+                
+                // 添加认证头
+                // 注意：这种方式不能直接添加认证头，需要后端支持查询参数认证
+                // 或者使用服务器端生成文件然后重定向下载
+                if (token) {
+                    link.href += `&token=${token}`;
+                }
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            // 删除专家
+            async function deleteExperts(expertIds) {
+                try {
+                    const token = localStorage.getItem('token');
+                    
+                    const response = await fetch('/api/experts', {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            expertIds: expertIds
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        // 关闭模态框
+                        document.getElementById('delete-modal').classList.add('hidden');
+                        
+                        // 显示成功消息
+                        alert('专家删除成功');
+                        
+                        // 重新加载专家列表
+                        loadExperts(currentPage, pageSize, filters);
+                    } else {
+                        const error = await response.json();
+                        alert(`删除专家失败: ${error.message || '未知错误'}`);
+                    }
+                } catch (error) {
+                    console.error('删除专家出错', error);
+                    alert('删除专家时出错，请稍后重试');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

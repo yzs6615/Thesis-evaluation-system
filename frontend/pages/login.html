@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bg-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-form {
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #4f46e5;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .submit-btn:hover {
+            background-color: #4338ca;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .register-link a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-gradient">
+    <div class="login-container">
+        <div class="login-form">
+            <h1 class="form-title">论文评定系统</h1>
+            <div id="error-message" class="error-message"></div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="请输入用户名" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <span id="login-text">登录</span>
+                    <span id="login-spinner" class="hidden">
+                        <i class="fas fa-spinner fa-spin"></i> 登录中...
+                    </span>
+                </button>
+            </form>
+            <div class="register-link">
+                还没有账号？ <a href="register.html">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否已登录
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    redirectBasedOnRole(user.role);
+                } catch (e) {
+                    console.error('解析用户数据失败', e);
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            }
+            
+            // 登录表单提交
+            const loginForm = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message');
+            const loginText = document.getElementById('login-text');
+            const loginSpinner = document.getElementById('login-spinner');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // 显示加载状态
+                loginText.classList.add('hidden');
+                loginSpinner.classList.remove('hidden');
+                errorMessage.style.display = 'none';
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // 内置账号检查
+                const predefinedAccounts = {
+                    'cus': { password: '123456', role: 'author', name: '测试用户' },
+                    'exp': { password: '123456', role: 'expert', name: '测试专家' },
+                    'admin': { password: '123456', role: 'admin', name: '系统管理员' }
+                };
+                
+                // 检查是否是预设账号
+                if (predefinedAccounts[username] && predefinedAccounts[username].password === password) {
+                    // 模拟登录成功
+                    console.log('使用预设账号登录成功');
+                    
+                    // 生成模拟token
+                    const mockToken = 'mock_token_' + Date.now();
+                    
+                    // 创建用户数据
+                    const userData = {
+                        id: 'mock_' + username + '_id',
+                        username: username,
+                        role: predefinedAccounts[username].role,
+                        name: predefinedAccounts[username].name
+                    };
+                    
+                    // 存储登录信息
+                    localStorage.setItem('token', mockToken);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    // 根据角色重定向
+                    redirectBasedOnRole(userData.role);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // 登录成功
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        
+                        // 根据角色重定向
+                        redirectBasedOnRole(data.user.role);
+                    } else {
+                        // 登录失败
+                        errorMessage.textContent = data.error || '登录失败，请检查用户名和密码';
+                        errorMessage.style.display = 'block';
+                        
+                        // 恢复按钮状态
+                        loginText.classList.remove('hidden');
+                        loginSpinner.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('登录请求失败', error);
+                    errorMessage.textContent = '网络错误，请稍后重试';
+                    errorMessage.style.display = 'block';
+                    
+                    // 恢复按钮状态
+                    loginText.classList.remove('hidden');
+                    loginSpinner.classList.add('hidden');
+                }
+            });
+            
+            // 根据角色重定向到相应页面
+            function redirectBasedOnRole(role) {
+                switch (role) {
+                    case 'admin':
+                        window.location.href = 'admin-dashboard.html';
+                        break;
+                    case 'expert':
+                        window.location.href = 'expert-dashboard.html';
+                        break;
+                    case 'author':
+                        window.location.href = 'author-dashboard.html';
+                        break;
+                    default:
+                        window.location.href = 'dashboard.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

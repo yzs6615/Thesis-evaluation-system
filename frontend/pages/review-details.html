@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文详情 - 论文评定系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .sidebar-collapsed {
+            left: -250px;
+        }
+        .content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        .content-expanded {
+            margin-left: 0;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #334155;
+            color: white;
+        }
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #1f2937;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .rating-stars {
+            display: flex;
+            align-items: center;
+        }
+        .rating-stars i {
+            color: #fbbf24;
+            margin-right: 0.25rem;
+        }
+        .score-progress {
+            width: 120px;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .score-progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .score-excellent { background-color: #10b981; }
+        .score-good { background-color: #3b82f6; }
+        .score-average { background-color: #f59e0b; }
+        .score-poor { background-color: #ef4444; }
+        .expert-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #e2e8f0;
+        }
+        .timeline-item.completed::before {
+            background-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold">论文评定系统</h1>
+        </div>
+        <div class="py-4">
+            <a href="expert-dashboard.html" class="sidebar-link">
+                <i class="fas fa-tachometer-alt"></i> 仪表盘
+            </a>
+            <a href="expert-papers.html" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> 待评审论文
+            </a>
+            <a href="expert-completed.html" class="sidebar-link active">
+                <i class="fas fa-check-circle"></i> 已评审论文
+            </a>
+            <a href="expert-notifications.html" class="sidebar-link">
+                <i class="fas fa-bell"></i> 通知
+                <span class="notification-count ml-auto" id="sidebar-notification-count"></span>
+            </a>
+            <a href="expert-profile.html" class="sidebar-link">
+                <i class="fas fa-user"></i> 个人资料
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="content" id="content">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex items-center">
+                    <!-- 返回按钮 -->
+                    <button onclick="goBack()" class="mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-arrow-left mr-1"></i> 返回
+                    </button>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center focus:outline-none">
+                            <span class="mr-2 text-gray-700" id="user-name">加载中...</span>
+                            <img id="user-avatar" class="h-8 w-8 rounded-full bg-gray-300" src="../assets/default-avatar.png" alt="用户头像">
+                        </button>
+                        <div class="dropdown-menu" id="user-menu">
+                            <a href="expert-profile.html" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i> 个人资料
+                            </a>
+                            <a href="#" class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="container mx-auto px-4 py-6">
+            <!-- 论文基本信息 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-bold text-gray-800 mb-2" id="paper-title">加载中...</h1>
+                        <div class="flex items-center text-sm text-gray-500 mb-4">
+                            <span class="mr-6"><i class="fas fa-user mr-1"></i> 作者: <span id="paper-author">加载中...</span></span>
+                            <span class="mr-6"><i class="far fa-calendar-alt mr-1"></i> 提交时间: <span id="paper-submit-date">加载中...</span></span>
+                            <span><i class="fas fa-check-circle mr-1"></i> 评审完成时间: <span id="paper-complete-date">加载中...</span></span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="mb-2">
+                            <span class="text-sm text-gray-500">综合评分</span>
+                        </div>
+                        <div class="flex items-center justify-end mb-2">
+                            <div class="rating-stars mr-2" id="overall-rating">
+                                <!-- 星级评分将通过JavaScript填充 -->
+                            </div>
+                            <span class="text-lg font-bold text-gray-800" id="overall-score">0/5</span>
+                        </div>
+                        <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                            已评审
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">摘要</h3>
+                    <p class="text-gray-600 leading-relaxed" id="paper-abstract">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 评审进度时间线 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">评审进度</h2>
+                <div class="timeline" id="review-timeline">
+                    <!-- 时间线内容将通过JavaScript填充 -->
+                </div>
+            </div>
+
+            <!-- 专家评分详情 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">专家评分详情</h2>
+                <div id="expert-reviews">
+                    <!-- 专家评审卡片将通过JavaScript填充 -->
+                </div>
+            </div>
+
+            <!-- 综合评价 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">综合评价</h2>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-lg font-medium text-gray-800">最终评分</span>
+                        <div class="flex items-center">
+                            <div class="rating-stars mr-2" id="final-rating">
+                                <!-- 星级评分将通过JavaScript填充 -->
+                            </div>
+                            <span class="text-xl font-bold text-gray-800" id="final-score">0/5</span>
+                        </div>
+                    </div>
+                    <div class="criteria-grid mb-4">
+                        <div class="bg-white p-3 rounded border">
+                            <div class="text-sm text-gray-500 mb-1">创新性</div>
+                            <div class="flex items-center">
+                                <div class="score-progress mr-2">
+                                    <div class="score-progress-bar score-good" id="innovation-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="text-sm font-medium" id="innovation-score">0/5</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded border">
+                            <div class="text-sm text-gray-500 mb-1">研究方法</div>
+                            <div class="flex items-center">
+                                <div class="score-progress mr-2">
+                                    <div class="score-progress-bar score-good" id="methodology-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="text-sm font-medium" id="methodology-score">0/5</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded border">
+                            <div class="text-sm text-gray-500 mb-1">写作质量</div>
+                            <div class="flex items-center">
+                                <div class="score-progress mr-2">
+                                    <div class="score-progress-bar score-excellent" id="writing-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="text-sm font-medium" id="writing-score">0/5</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded border">
+                            <div class="text-sm text-gray-500 mb-1">学术贡献</div>
+                            <div class="flex items-center">
+                                <div class="score-progress mr-2">
+                                    <div class="score-progress-bar score-good" id="contribution-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="text-sm font-medium" id="contribution-score">0/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">综合评价意见</h4>
+                        <p class="text-gray-600 leading-relaxed" id="overall-comments">加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user || user.role !== 'expert') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 设置用户信息
+            document.getElementById('user-name').textContent = user.username || '用户';
+            
+            // 侧边栏切换
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                content.classList.toggle('content-expanded');
+            });
+            
+            // 用户菜单切换
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuBtn.addEventListener('click', function() {
+                userMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭用户菜单
+            document.addEventListener('click', function(event) {
+                if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // 获取URL参数中的论文ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const paperId = urlParams.get('id');
+            
+            if (paperId) {
+                loadPaperDetails(paperId);
+            } else {
+                // 如果没有ID参数，显示错误信息
+                document.querySelector('.container').innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">参数错误</h2>
+                        <p class="text-gray-600 mb-4">未找到论文ID参数</p>
+                        <button onclick="goBack()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md">
+                            返回上一页
+                        </button>
+                    </div>
+                `;
+            }
+        });
+        
+        // 加载论文详情
+        async function loadPaperDetails(paperId) {
+            try {
+                // 模拟API调用，实际应用中应该从后端获取数据
+                const paperData = getPaperData(paperId);
+                
+                if (!paperData) {
+                    showError('未找到该论文信息');
+                    return;
+                }
+                
+                // 填充论文基本信息
+                document.getElementById('paper-title').textContent = paperData.title;
+                document.getElementById('paper-author').textContent = paperData.authorName;
+                document.getElementById('paper-submit-date').textContent = new Date(paperData.submitDate).toLocaleDateString();
+                document.getElementById('paper-complete-date').textContent = new Date(paperData.completedAt).toLocaleDateString();
+                document.getElementById('paper-abstract').textContent = paperData.abstract;
+                
+                // 填充综合评分
+                document.getElementById('overall-score').textContent = `${paperData.overallRating}/5`;
+                document.getElementById('overall-rating').innerHTML = generateStarsHtml(paperData.overallRating);
+                document.getElementById('final-score').textContent = `${paperData.overallRating}/5`;
+                document.getElementById('final-rating').innerHTML = generateStarsHtml(paperData.overallRating);
+                document.getElementById('overall-comments').textContent = paperData.overallComments;
+                
+                // 填充分项评分
+                const avgCriteria = calculateAverageCriteria(paperData.expertReviews);
+                updateCriteriaScores(avgCriteria);
+                
+                // 生成评审时间线
+                generateReviewTimeline(paperData.expertReviews);
+                
+                // 生成专家评审卡片
+                generateExpertReviews(paperData.expertReviews);
+                
+            } catch (error) {
+                console.error('加载论文详情出错', error);
+                showError('加载论文详情时出错，请稍后重试');
+            }
+        }
+        
+        // 获取论文数据（模拟数据）
+        function getPaperData(paperId) {
+            const papers = {
+                'paper004': {
+                    id: 'paper004',
+                    title: '人工智能在医疗诊断中的应用与伦理问题研究',
+                    abstract: '本文探讨了人工智能技术在医疗诊断领域的应用现状和发展趋势，分析了AI辅助诊断系统的技术原理和临床效果，并深入讨论了AI医疗应用中的伦理问题、隐私保护和法律责任等关键议题。研究采用文献综述和案例分析相结合的方法，通过对国内外相关研究的梳理和分析，总结了AI医疗诊断的优势和局限性，提出了相应的伦理规范和监管建议。',
+                    authorName: '赵六',
+                    submitDate: '2023-08-01',
+                    completedAt: '2023-09-10',
+                    overallRating: 4.5,
+                    overallComments: '这是一篇非常出色的论文，作者对人工智能在医疗领域的应用进行了全面而深入的分析，特别是对伦理问题的讨论见解独到。论文结构清晰，论证严谨，参考文献丰富且权威，是该领域的重要贡献。建议在未来研究中进一步关注AI医疗技术的实际应用效果评估。',
+                    expertReviews: [
+                        {
+                            expertName: '李教授',
+                            expertTitle: '医学信息学专家',
+                            reviewDate: '2023-09-05',
+                            score: 4.5,
+                            criteria: {
+                                innovation: 4.5,
+                                methodology: 4.0,
+                                writing: 5.0,
+                                contribution: 4.5
+                            },
+                            comments: '论文选题新颖，对AI医疗诊断的伦理问题分析深入，具有重要的理论价值和实践意义。研究方法科学，文献综述全面，写作规范。建议在实验验证部分增加更多实际案例分析。',
+                            status: 'completed'
+                        },
+                        {
+                            expertName: '王研究员',
+                            expertTitle: '人工智能伦理专家',
+                            reviewDate: '2023-09-07',
+                            score: 4.5,
+                            criteria: {
+                                innovation: 4.0,
+                                methodology: 4.5,
+                                writing: 4.5,
+                                contribution: 5.0
+                            },
+                            comments: '作者对AI医疗伦理问题的讨论非常深入，提出的监管建议具有很强的实用性。论文逻辑清晰，论证充分，是该领域的重要贡献。建议进一步探讨不同文化背景下的伦理差异。',
+                            status: 'completed'
+                        },
+                        {
+                            expertName: '张博士',
+                            expertTitle: '临床医学专家',
+                            reviewDate: '2023-09-10',
+                            score: 4.5,
+                            criteria: {
+                                innovation: 4.5,
+                                methodology: 4.0,
+                                writing: 4.5,
+                                contribution: 4.5
+                            },
+                            comments: '从临床角度看，论文对AI医疗诊断的分析很有价值，特别是对实际应用中面临的挑战分析到位。建议增加更多临床实践案例，以增强论文的实用性。',
+                            status: 'completed'
+                        }
+                    ]
+                },
+                'paper005': {
+                    id: 'paper005',
+                    title: '5G网络安全威胁与防御策略研究',
+                    abstract: '本文系统分析了5G网络面临的安全威胁和挑战，包括网络架构安全、空口安全、切片安全等方面，并提出了相应的防御策略和安全解决方案，为5G网络的安全部署和运营提供了理论指导和实践参考。研究采用威胁建模和安全分析相结合的方法，通过对5G网络架构的深入分析，识别了主要安全风险点，并设计了相应的防护机制。',
+                    authorName: '孙七',
+                    submitDate: '2023-08-05',
+                    completedAt: '2023-09-15',
+                    overallRating: 4.0,
+                    overallComments: '论文对5G网络安全问题的分析全面且深入，提出的防御策略具有一定的创新性和实用价值。研究方法规范，数据分析准确，但在某些技术细节的描述上还可以更加精确，建议在未来研究中进一步完善相关实验验证。',
+                    expertReviews: [
+                        {
+                            expertName: '陈教授',
+                            expertTitle: '网络安全专家',
+                            reviewDate: '2023-09-08',
+                            score: 4.0,
+                            criteria: {
+                                innovation: 3.5,
+                                methodology: 4.0,
+                                writing: 4.0,
+                                contribution: 4.5
+                            },
+                            comments: '论文对5G网络安全威胁的分析比较全面，提出的防御策略具有实用价值。但在创新性方面还有提升空间，建议增加更多原创性的安全机制设计。',
+                            status: 'completed'
+                        },
+                        {
+                            expertName: '刘研究员',
+                            expertTitle: '通信技术专家',
+                            reviewDate: '2023-09-12',
+                            score: 4.0,
+                            criteria: {
+                                innovation: 4.0,
+                                methodology: 4.0,
+                                writing: 4.0,
+                                contribution: 4.0
+                            },
+                            comments: '从通信技术角度看，论文对5G网络架构安全的分析较为深入，提出的解决方案具有可行性。建议在实验验证部分增加更多性能测试数据。',
+                            status: 'completed'
+                        },
+                        {
+                            expertName: '周博士',
+                            expertTitle: '信息安全专家',
+                            reviewDate: '2023-09-15',
+                            score: 4.0,
+                            criteria: {
+                                innovation: 4.0,
+                                methodology: 4.0,
+                                writing: 3.5,
+                                contribution: 4.0
+                            },
+                            comments: '论文研究内容充实，安全分析方法得当。在写作方面，部分技术术语的使用还需要更加准确，建议进一步完善论文的表达。',
+                            status: 'completed'
+                        }
+                    ]
+                }
+            };
+            
+            return papers[paperId];
+        }
+        
+        // 生成星级评分HTML
+        function generateStarsHtml(rating) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    starsHtml += '<i class="fas fa-star"></i>';
+                } else if (i - 0.5 <= rating) {
+                    starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    starsHtml += '<i class="far fa-star"></i>';
+                }
+            }
+            return starsHtml;
+        }
+        
+        // 计算平均分项评分
+        function calculateAverageCriteria(expertReviews) {
+            const criteria = {
+                innovation: 0,
+                methodology: 0,
+                writing: 0,
+                contribution: 0
+            };
+            
+            expertReviews.forEach(review => {
+                criteria.innovation += review.criteria.innovation;
+                criteria.methodology += review.criteria.methodology;
+                criteria.writing += review.criteria.writing;
+                criteria.contribution += review.criteria.contribution;
+            });
+            
+            const count = expertReviews.length;
+            return {
+                innovation: (criteria.innovation / count).toFixed(1),
+                methodology: (criteria.methodology / count).toFixed(1),
+                writing: (criteria.writing / count).toFixed(1),
+                contribution: (criteria.contribution / count).toFixed(1)
+            };
+        }
+        
+        // 更新分项评分显示
+        function updateCriteriaScores(criteria) {
+            document.getElementById('innovation-score').textContent = `${criteria.innovation}/5`;
+            document.getElementById('innovation-bar').style.width = `${(criteria.innovation / 5) * 100}%`;
+            
+            document.getElementById('methodology-score').textContent = `${criteria.methodology}/5`;
+            document.getElementById('methodology-bar').style.width = `${(criteria.methodology / 5) * 100}%`;
+            
+            document.getElementById('writing-score').textContent = `${criteria.writing}/5`;
+            document.getElementById('writing-bar').style.width = `${(criteria.writing / 5) * 100}%`;
+            
+            document.getElementById('contribution-score').textContent = `${criteria.contribution}/5`;
+            document.getElementById('contribution-bar').style.width = `${(criteria.contribution / 5) * 100}%`;
+        }
+        
+        // 生成评审时间线
+        function generateReviewTimeline(expertReviews) {
+            const timeline = document.getElementById('review-timeline');
+            let html = '';
+            
+            // 添加论文提交节点
+            html += `
+                <div class="timeline-item completed">
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-800">论文提交</h4>
+                            <span class="text-sm text-gray-500">2023-08-01</span>
+                        </div>
+                        <p class="text-sm text-gray-600">作者提交论文，等待专家评审</p>
+                    </div>
+                </div>
+            `;
+            
+            // 添加专家评审节点
+            expertReviews.forEach((review, index) => {
+                html += `
+                    <div class="timeline-item completed">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-800">${review.expertName} 完成评审</h4>
+                                <span class="text-sm text-gray-500">${review.reviewDate}</span>
+                            </div>
+                            <div class="flex items-center mb-2">
+                                <span class="text-sm text-gray-600 mr-2">评分:</span>
+                                <div class="rating-stars mr-2">
+                                    ${generateStarsHtml(review.score)}
+                                </div>
+                                <span class="text-sm font-medium">${review.score}/5</span>
+                            </div>
+                            <p class="text-sm text-gray-600">${review.comments.substring(0, 100)}...</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 添加评审完成节点
+            html += `
+                <div class="timeline-item completed">
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-800">评审完成</h4>
+                            <span class="text-sm text-gray-500">${expertReviews[expertReviews.length - 1].reviewDate}</span>
+                        </div>
+                        <p class="text-sm text-gray-600">所有专家评审完成，生成最终评价</p>
+                    </div>
+                </div>
+            `;
+            
+            timeline.innerHTML = html;
+        }
+        
+        // 生成专家评审卡片
+        function generateExpertReviews(expertReviews) {
+            const container = document.getElementById('expert-reviews');
+            let html = '';
+            
+            expertReviews.forEach((review, index) => {
+                html += `
+                    <div class="expert-card">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">${review.expertName}</h3>
+                                <p class="text-sm text-gray-500">${review.expertTitle}</p>
+                                <p class="text-sm text-gray-500">评审时间: ${review.reviewDate}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center mb-1">
+                                    <div class="rating-stars mr-2">
+                                        ${generateStarsHtml(review.score)}
+                                    </div>
+                                    <span class="text-lg font-bold">${review.score}/5</span>
+                                </div>
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                    已完成
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">分项评分</h4>
+                            <div class="criteria-grid">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">创新性</span>
+                                    <div class="flex items-center">
+                                        <div class="score-progress mr-2">
+                                            <div class="score-progress-bar ${getScoreClass(review.criteria.innovation)}" style="width: ${(review.criteria.innovation / 5) * 100}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">${review.criteria.innovation}/5</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">研究方法</span>
+                                    <div class="flex items-center">
+                                        <div class="score-progress mr-2">
+                                            <div class="score-progress-bar ${getScoreClass(review.criteria.methodology)}" style="width: ${(review.criteria.methodology / 5) * 100}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">${review.criteria.methodology}/5</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">写作质量</span>
+                                    <div class="flex items-center">
+                                        <div class="score-progress mr-2">
+                                            <div class="score-progress-bar ${getScoreClass(review.criteria.writing)}" style="width: ${(review.criteria.writing / 5) * 100}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">${review.criteria.writing}/5</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">学术贡献</span>
+                                    <div class="flex items-center">
+                                        <div class="score-progress mr-2">
+                                            <div class="score-progress-bar ${getScoreClass(review.criteria.contribution)}" style="width: ${(review.criteria.contribution / 5) * 100}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">${review.criteria.contribution}/5</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">评审意见</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed">${review.comments}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 获取评分对应的样式类
+        function getScoreClass(score) {
+            if (score >= 4.5) return 'score-excellent';
+            if (score >= 3.5) return 'score-good';
+            if (score >= 2.5) return 'score-average';
+            return 'score-poor';
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            document.querySelector('.container').innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">加载失败</h2>
+                    <p class="text-gray-600 mb-4">${message}</p>
+                    <button onclick="goBack()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md">
+                        返回上一页
+                    </button>
+                </div>
+            `;
+        }
+        
+        // 返回上一页
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'expert-completed.html';
+            }
+        }
+    </script>
+</body>
+</html>
